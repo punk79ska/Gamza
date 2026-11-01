@@ -1,0 +1,919 @@
+/* ==========================================================================
+   Gamza (감자) - Screen 2: Detail Popup Modal Styles
+   File: components/screen2_detail.css
+   ========================================================================== */
+
+/* Prevent body scrolling when modal is open */
+body.gamza-modal-open {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+/* Modal Overlay & Backdrop */
+.gamza-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(44, 37, 35, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gamza-modal-backdrop.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+/* Modal Dialog Box */
+.gamza-modal-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  max-height: calc(100vh - 40px);
+  background-color: var(--bg-card, #ffffff);
+  border-radius: var(--radius-lg, 20px);
+  box-shadow: 0 20px 45px rgba(60, 40, 25, 0.22),
+              0 8px 18px rgba(110, 75, 45, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  outline: none;
+  border: 1px solid var(--border-subtle, #f0eae1);
+  transform: translateY(24px) scale(0.97);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s ease;
+  will-change: transform, opacity;
+}
+
+.gamza-modal-backdrop.is-active .gamza-modal-dialog {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Mobile Grab Handle Bar (visible only on mobile) */
+.gamza-modal-sheet-handle {
+  display: none;
+  width: 44px;
+  height: 4px;
+  background-color: var(--border-color, #e6ded5);
+  border-radius: var(--radius-full, 9999px);
+  margin: 10px auto 4px;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+/* Floating Close Button (Top-Right) - High Contrast Glassmorphic Badge */
+#gamza-detail-modal .gamza-modal-close-btn,
+.gamza-modal-dialog .gamza-modal-close-btn,
+.gamza-modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(28, 20, 16, 0.78);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 30;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.32),
+              0 2px 6px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  transition: transform 0.22s cubic-bezier(0.34, 1.4, 0.64, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+  outline: none;
+  touch-action: manipulation;
+}
+
+#gamza-detail-modal .gamza-modal-close-btn:hover,
+.gamza-modal-dialog .gamza-modal-close-btn:hover,
+.gamza-modal-close-btn:hover {
+  background: rgba(18, 12, 9, 0.94);
+  border-color: rgba(255, 255, 255, 0.95);
+  color: #ffffff;
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 0 0 3px rgba(255, 208, 0, 0.5),
+              0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+#gamza-detail-modal .gamza-modal-close-btn:active,
+.gamza-modal-dialog .gamza-modal-close-btn:active,
+.gamza-modal-close-btn:active {
+  transform: scale(0.94) rotate(90deg);
+  background: var(--primary, #8d5b38);
+}
+
+#gamza-detail-modal .gamza-modal-close-btn:focus-visible,
+.gamza-modal-dialog .gamza-modal-close-btn:focus-visible,
+.gamza-modal-close-btn:focus-visible {
+  outline: 3px solid var(--accent, #ffd000);
+  outline-offset: 3px;
+}
+
+#gamza-detail-modal .gamza-modal-close-btn svg,
+.gamza-modal-dialog .gamza-modal-close-btn svg,
+.gamza-modal-close-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: #ffffff;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s ease;
+  pointer-events: none;
+}
+
+/* Scrollable Content Body */
+.gamza-modal-scrollable {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+.gamza-modal-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+.gamza-modal-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gamza-modal-scrollable::-webkit-scrollbar-thumb {
+  background: var(--border-color, #e6ded5);
+  border-radius: 4px;
+}
+.gamza-modal-scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted, #9e9189);
+}
+
+/* Top Section: Hero Image Container */
+.gamza-detail-image-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  max-height: 340px;
+  background-color: var(--bg-muted, #f3ede6);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gamza-detail-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gamza-detail-image-box:hover img {
+  transform: scale(1.03);
+}
+
+.gamza-detail-image-overlay {
+  position: absolute;
+  inset: 0;
+  /* Soft top scrim gradient ensuring clear visibility for floating header controls over any photo background */
+  background: linear-gradient(
+    180deg,
+    rgba(18, 12, 9, 0.45) 0%,
+    rgba(18, 12, 9, 0.18) 26%,
+    rgba(0, 0, 0, 0) 52%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+  pointer-events: none;
+}
+
+/* Detail Main Info Container */
+.gamza-detail-info-wrap {
+  padding: 24px 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 1 & 2: Status & Category Badge Row */
+.gamza-detail-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.gamza-badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: var(--radius-full, 9999px);
+  line-height: 1.2;
+  transition: var(--transition);
+}
+
+.gamza-badge-status::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Status variants */
+.gamza-badge-status.status-selling {
+  color: var(--status-sale-text, #1b5e20);
+  background-color: var(--status-sale-bg, #e8f5e9);
+  border: 1px solid var(--status-sale-border, #c8e6c9);
+}
+
+.gamza-badge-status.status-reserved {
+  color: var(--status-reserved-text, #b45309);
+  background-color: var(--status-reserved-bg, #fef3c7);
+  border: 1px solid var(--status-reserved-border, #fde68a);
+}
+
+.gamza-badge-status.status-sold {
+  color: var(--status-sold-text, #4b5563);
+  background-color: var(--status-sold-bg, #f3f4f6);
+  border: 1px solid var(--status-sold-border, #e5e7eb);
+}
+
+.gamza-badge-category {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-text, #664600);
+  background-color: var(--accent-light, #fff8d6);
+  border: 1px solid var(--accent-border, #fed94a);
+  border-radius: var(--radius-sm, 8px);
+}
+
+/* 3: Product Title */
+.gamza-detail-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-main, #2c2523);
+  line-height: 1.4;
+  margin: 0 0 8px;
+  word-break: keep-all;
+  letter-spacing: -0.3px;
+}
+
+/* 4: Meta info (Location & Upload time) */
+.gamza-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted, #9e9189);
+  margin-bottom: 16px;
+}
+
+.gamza-detail-meta-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gamza-detail-meta-dot {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* 5: Price */
+.gamza-detail-price-box {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.gamza-detail-price {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-main, #2c2523);
+  letter-spacing: -0.5px;
+}
+
+.gamza-detail-price-unit {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-sub, #6c5f59);
+}
+
+.gamza-detail-divider {
+  height: 1px;
+  background-color: var(--border-subtle, #f0eae1);
+  margin: 4px 0 20px;
+}
+
+/* 6: Description */
+.gamza-detail-description {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-sub, #6c5f59);
+  white-space: pre-line;
+  word-break: break-word;
+  margin-bottom: 24px;
+  min-height: 60px;
+}
+
+/* ==========================================================================
+   4. Seller Profile & Potato Temperature Section
+   ========================================================================== */
+.gamza-seller-card {
+  background-color: var(--primary-soft, #f8f3ee);
+  border: 1px solid var(--border-color, #e6ded5);
+  border-radius: var(--radius-md, 14px);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.gamza-seller-card:hover {
+  border-color: var(--primary-light, #ede0d4);
+  background-color: #faf5f0;
+}
+
+.gamza-seller-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gamza-seller-profile-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gamza-seller-avatar-wrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(110, 75, 45, 0.12);
+  flex-shrink: 0;
+  background-color: var(--bg-muted, #f3ede6);
+}
+
+.gamza-seller-avatar-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gamza-seller-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gamza-seller-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main, #2c2523);
+}
+
+.gamza-seller-location {
+  font-size: 12px;
+  color: var(--text-muted, #9e9189);
+}
+
+/* Potato Temperature Gauge Box */
+.gamza-potato-temp-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.gamza-temp-value-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.gamza-temp-label {
+  font-size: 11px;
+  color: var(--text-sub, #6c5f59);
+  font-weight: 500;
+}
+
+.gamza-temp-degree {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary, #9c6644);
+  letter-spacing: -0.2px;
+}
+
+.gamza-temp-potato-icon {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-block;
+  animation: potatoBounce 2.5s infinite ease-in-out;
+  transform-origin: bottom center;
+}
+
+@keyframes potatoBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(4deg); }
+}
+
+/* Gauge Bar Track */
+.gamza-temp-gauge-track {
+  width: 110px;
+  height: 7px;
+  background-color: var(--border-color, #e6ded5);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+  position: relative;
+}
+
+.gamza-temp-gauge-fill {
+  height: 100%;
+  border-radius: var(--radius-full, 9999px);
+  background: linear-gradient(90deg, #ffd000 0%, #f59e0b 50%, #8d5b38 100%);
+  width: 50%;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gamza-temp-remark {
+  font-size: 11px;
+  color: var(--text-muted, #9e9189);
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   5. Sticky Bottom Action Bar
+   ========================================================================== */
+.gamza-modal-action-bar {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-subtle, #f0eae1);
+  padding: 14px 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 15;
+  box-shadow: 0 -4px 18px rgba(110, 75, 45, 0.06);
+}
+
+/* Like Heart Button */
+.gamza-btn-like {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  height: 52px;
+  padding: 4px 12px;
+  background-color: var(--bg-card, #ffffff);
+  border: 1.5px solid var(--border-color, #e6ded5);
+  border-radius: var(--radius-md, 14px);
+  color: var(--text-sub, #6c5f59);
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gamza-btn-like:hover {
+  background-color: var(--primary-soft, #f8f3ee);
+  border-color: var(--primary-light, #ede0d4);
+  transform: translateY(-1px);
+}
+
+.gamza-btn-like:active {
+  transform: scale(0.96);
+}
+
+.gamza-btn-like-icon {
+  width: 22px;
+  height: 22px;
+  stroke: var(--text-sub, #6c5f59);
+  fill: transparent;
+  stroke-width: 2;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gamza-btn-like-count {
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 2px;
+  color: var(--text-sub, #6c5f59);
+  transition: color 0.2s ease;
+}
+
+/* Liked Active State */
+.gamza-btn-like.is-liked {
+  border-color: #ffcdd2;
+  background-color: #fff8f8;
+}
+
+.gamza-btn-like.is-liked .gamza-btn-like-icon {
+  stroke: #e63946;
+  fill: #e63946;
+  animation: heartPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gamza-btn-like.is-liked .gamza-btn-like-count {
+  color: #e63946;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* Main CTA: Chat Button (시선을 사로잡는 밝은 노란색 포인트 버튼) */
+.gamza-btn-chat-cta {
+  flex: 1;
+  height: 52px;
+  background-color: var(--accent, #ffd000);
+  color: var(--accent-contrast, #241a10);
+  border: 1px solid var(--accent-border, #fed94a);
+  border-radius: var(--radius-md, 14px);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  cursor: pointer;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px var(--accent-shadow, rgba(255, 208, 0, 0.42));
+  transition: var(--transition);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gamza-btn-chat-cta:hover {
+  background-color: var(--accent-hover, #f0c200);
+  box-shadow: 0 6px 22px rgba(255, 208, 0, 0.52);
+  transform: translateY(-1.5px);
+}
+
+.gamza-btn-chat-cta:active {
+  transform: translateY(0) scale(0.985);
+  box-shadow: 0 2px 8px rgba(255, 208, 0, 0.3);
+}
+
+.gamza-btn-chat-cta svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--accent-contrast, #241a10);
+}
+
+/* ==========================================================================
+   Owner Action Controls (요구사항 1: 작성자 전용 수정/삭제 및 상태 변경)
+   ========================================================================== */
+.gamza-buyer-action-group,
+.gamza-owner-action-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.gamza-btn-owner-delete {
+  height: 52px;
+  padding: 0 22px;
+  background-color: #fff1f2;
+  border: 1.5px solid #fecdd3;
+  color: #e11d48;
+  border-radius: var(--radius-md, 14px);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.gamza-btn-owner-delete:hover {
+  background-color: #ffe4e6;
+  border-color: #fda4af;
+  color: #be123c;
+  transform: translateY(-1px);
+}
+
+.gamza-btn-owner-delete:active {
+  transform: scale(0.97);
+}
+
+.gamza-btn-owner-edit {
+  flex: 1;
+  height: 52px;
+  background: linear-gradient(135deg, #a76d49 0%, #8b5533 100%);
+  color: #ffffff;
+  border: 1px solid #744527;
+  border-radius: var(--radius-md, 14px);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(139, 85, 51, 0.3);
+  transition: var(--transition);
+  user-select: none;
+}
+
+.gamza-btn-owner-edit:hover {
+  background: linear-gradient(135deg, #965f3d 0%, #754425 100%);
+  box-shadow: 0 6px 20px rgba(139, 85, 51, 0.42);
+  transform: translateY(-1.5px);
+}
+
+.gamza-btn-owner-edit:active {
+  transform: scale(0.985);
+}
+
+/* 작성자 전용 판매 상태 선택 바 */
+.gamza-owner-status-box {
+  background: #fdfaf6;
+  border: 1.5px solid #eddcd0;
+  border-radius: var(--radius-md, 14px);
+  padding: 12px 14px;
+  margin: 12px 0 16px;
+  box-shadow: 0 2px 8px rgba(110, 75, 45, 0.04);
+}
+
+.owner-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.owner-status-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary, #9c6644);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.owner-status-guide {
+  font-size: 11px;
+  color: var(--text-muted, #9e9189);
+}
+
+.owner-status-btn-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.btn-owner-status {
+  padding: 9px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-color, #e6ded5);
+  background: #ffffff;
+  color: var(--text-sub, #6c5f59);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-owner-status:hover {
+  background: #f8f3ee;
+  border-color: var(--primary-light, #ede0d4);
+  color: var(--text-main, #2c2523);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.dot-sale {
+  background-color: #10b981;
+}
+
+.status-dot.dot-reserved {
+  background-color: #f59e0b;
+}
+
+.status-dot.dot-sold {
+  background-color: #6b7280;
+}
+
+/* 상태별 Active 스타일 */
+.btn-owner-status.is-active[data-status="판매중"] {
+  background-color: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+  font-weight: 800;
+}
+
+.btn-owner-status.is-active[data-status="예약중"] {
+  background-color: #fffbeb;
+  border-color: #f59e0b;
+  color: #b45309;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+  font-weight: 800;
+}
+
+.btn-owner-status.is-active[data-status="거래 완료"],
+.btn-owner-status.is-active[data-status="거래완료"] {
+  background-color: #f3f4f6;
+  border-color: #6b7280;
+  color: #374151;
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.25);
+  font-weight: 800;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Toast Notification Component
+   ========================================================================== */
+.gamza-toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 1200;
+  pointer-events: none;
+}
+
+.gamza-toast {
+  pointer-events: auto;
+  background: rgba(44, 37, 35, 0.94);
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  box-shadow: 0 8px 24px rgba(44, 37, 35, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  animation: gamzaToastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.gamza-toast.fade-out {
+  animation: gamzaToastOut 0.28s ease forwards;
+}
+
+@keyframes gamzaToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gamzaToastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(12px) scale(0.94);
+  }
+}
+
+/* ==========================================================================
+   Responsive Styles: Mobile Bottom Sheet
+   ========================================================================== */
+@media (max-width: 640px) {
+  .gamza-modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .gamza-modal-dialog {
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 24px 24px 0 0;
+    border-bottom: none;
+    transform: translateY(100%);
+  }
+
+  .gamza-modal-backdrop.is-active .gamza-modal-dialog {
+    transform: translateY(0);
+  }
+
+  .gamza-modal-sheet-handle {
+    display: block;
+  }
+
+  #gamza-detail-modal .gamza-modal-close-btn,
+  .gamza-modal-dialog .gamza-modal-close-btn,
+  .gamza-modal-close-btn {
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .gamza-detail-image-box {
+    aspect-ratio: 4 / 3;
+    max-height: 280px;
+  }
+
+  .gamza-detail-info-wrap {
+    padding: 18px 18px 14px;
+  }
+
+  .gamza-detail-title {
+    font-size: 19px;
+  }
+
+  .gamza-detail-price {
+    font-size: 23px;
+  }
+
+  .gamza-seller-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .gamza-potato-temp-box {
+    width: 100%;
+    align-items: flex-start;
+    border-top: 1px dashed var(--border-color, #e6ded5);
+    padding-top: 10px;
+  }
+
+  .gamza-temp-gauge-track {
+    width: 100%;
+  }
+
+  .gamza-modal-action-bar {
+    padding: 12px 16px max(12px, env(safe-area-inset-bottom, 12px));
+  }
+}

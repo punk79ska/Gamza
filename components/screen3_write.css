@@ -1,0 +1,913 @@
+/* ==========================================================================
+   감자마켓(Gamza) - 화면 3: 내 물건 팔기 (글쓰기 모달) 스타일시트
+   파일명: screen3_write.css
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. 모달 오버레이 & 백드롭 레이아웃
+   -------------------------------------------------------------------------- */
+.gamza-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gamza-modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* 어두운 배경 백드롭 (블러 효과) */
+.gamza-modal-overlay .gamza-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(44, 37, 35, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1;
+}
+
+/* 모달 본체 다이얼로그 카드 */
+.gamza-modal-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 620px;
+  max-height: 92vh;
+  background: var(--bg-card, #ffffff);
+  border-radius: var(--radius-lg, 20px);
+  box-shadow: var(--shadow-lg, 0 16px 40px rgba(78, 52, 34, 0.22));
+  border: 1px solid var(--border-color, #e6ded5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.gamza-modal-overlay.is-open .gamza-modal-container {
+  transform: translateY(0) scale(1);
+}
+
+/* --------------------------------------------------------------------------
+   1. 모달 상단 헤더
+   -------------------------------------------------------------------------- */
+.gamza-modal-header {
+  padding: 18px 24px;
+  background: var(--bg-card, #ffffff);
+  border-bottom: 1px solid var(--border-subtle, #f0eae1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.gamza-modal-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gamza-modal-header .potato-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-text, #664600);
+  background: var(--accent-light, #fff8d6);
+  border: 1px solid var(--accent-border, #fed94a);
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 9999px);
+}
+
+.gamza-modal-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-main, #2c2523);
+  letter-spacing: -0.02em;
+}
+
+/* 닫기 (X) 버튼 */
+.gamza-modal-container .gamza-modal-close-btn {
+  background: transparent;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full, 9999px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-sub, #6c5f59);
+  transition: var(--transition, all 0.2s ease);
+}
+
+.gamza-modal-container .gamza-modal-close-btn:hover {
+  background: var(--bg-muted, #f3ede6);
+  color: var(--text-main, #2c2523);
+  transform: rotate(90deg);
+}
+
+/* --------------------------------------------------------------------------
+   2. 폼 스크롤 바디 및 섹션들
+   -------------------------------------------------------------------------- */
+.gamza-write-form {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.gamza-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  background: var(--bg-page, #faf7f2);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color, #e6ded5) transparent;
+}
+
+.gamza-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.gamza-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gamza-modal-body::-webkit-scrollbar-thumb {
+  background-color: var(--border-color, #e6ded5);
+  border-radius: 4px;
+}
+
+/* 공통 폼 섹션 & 라벨 */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-card, #ffffff);
+  padding: 16px 18px;
+  border-radius: var(--radius-md, 14px);
+  border: 1px solid var(--border-subtle, #f0eae1);
+  box-shadow: var(--shadow-sm, 0 2px 6px rgba(110, 75, 45, 0.04));
+  transition: border-color 0.2s ease;
+}
+
+.form-section:focus-within {
+  border-color: var(--accent-border, #fed94a);
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main, #2c2523);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-label.required > span:first-child::after,
+.form-label.required::after {
+  content: " *";
+  color: #e63946;
+  font-weight: 700;
+}
+
+.form-label .image-sub-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted, #9e9189);
+}
+
+/* --------------------------------------------------------------------------
+   3. 상품 이미지 업로드 컴포넌트
+   -------------------------------------------------------------------------- */
+.image-upload-section {
+  background: #ffffff;
+}
+
+.image-input-methods {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* 썸네일 미리보기 영역 */
+.image-preview-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.image-preview-box {
+  width: 124px;
+  height: 124px;
+  border-radius: var(--radius-md, 14px);
+  border: 2px dashed var(--primary-light, #ede0d4);
+  background: var(--primary-soft, #f8f3ee);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-preview-box:hover {
+  border-color: var(--primary, #9c6644);
+  background: #fbf6f0;
+  transform: scale(1.02);
+}
+
+.image-preview-box.drag-over {
+  border-color: var(--accent, #ffd000);
+  background: var(--accent-light, #fff8d6);
+  border-style: solid;
+}
+
+.image-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px;
+  color: var(--primary, #9c6644);
+}
+
+.placeholder-icon {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+.placeholder-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary, #9c6644);
+}
+
+.placeholder-tip {
+  font-size: 10px;
+  color: var(--text-muted, #9e9189);
+  margin-top: 2px;
+}
+
+/* 컨트롤 액션 버튼 그룹 */
+.image-control-actions {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-file-select,
+.btn-use-default-potato {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  transition: var(--transition, all 0.2s ease);
+}
+
+.btn-file-select {
+  background: var(--primary-soft, #f8f3ee);
+  color: var(--primary, #9c6644);
+  border: 1px solid var(--primary-light, #ede0d4);
+}
+
+.btn-file-select:hover {
+  background: var(--primary-light, #ede0d4);
+  color: var(--primary-hover, #7f5539);
+}
+
+.btn-use-default-potato {
+  background: var(--accent-light, #fff8d6);
+  color: var(--accent-text, #664600);
+  border: 1px solid var(--accent-border, #fed94a);
+}
+
+.btn-use-default-potato:hover {
+  background: var(--accent, #ffd000);
+  color: var(--accent-contrast, #241a10);
+  border-color: var(--accent, #ffd000);
+}
+
+/* URL 직접 입력 바 */
+.image-url-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.url-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, #9e9189);
+}
+
+.url-input-wrap {
+  display: flex;
+  gap: 6px;
+}
+
+.url-input-wrap input {
+  flex: 1;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 12px;
+  border: 1px solid var(--border-color, #e6ded5);
+  border-radius: var(--radius-sm, 8px);
+  background: #ffffff;
+  color: var(--text-main, #2c2523);
+  box-sizing: border-box;
+}
+
+.url-input-wrap input:focus {
+  outline: none;
+  border-color: var(--primary, #9c6644);
+}
+
+.btn-url-apply {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--primary, #9c6644);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition, all 0.2s ease);
+}
+
+.btn-url-apply:hover {
+  background: var(--primary-hover, #7f5539);
+}
+
+/* 현재 이미지 상태 표시줄 */
+.image-current-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-sub, #6c5f59);
+  margin-top: 4px;
+}
+
+.status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.btn-remove-img {
+  background: none;
+  border: none;
+  color: #e63946;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 4px;
+  margin-left: auto;
+  border-radius: 4px;
+}
+
+.btn-remove-img:hover {
+  background: #fee2e2;
+}
+
+/* --------------------------------------------------------------------------
+   4. 기본 텍스트 인풋 & 텍스트에어리어
+   -------------------------------------------------------------------------- */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.gamza-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  font-size: 14.5px;
+  color: var(--text-main, #2c2523);
+  background: #ffffff;
+  border: 1.5px solid var(--border-color, #e6ded5);
+  border-radius: var(--radius-sm, 8px);
+  box-sizing: border-box;
+  transition: var(--transition, all 0.2s ease);
+}
+
+.gamza-input:focus {
+  outline: none;
+  border-color: var(--primary, #8d5b38);
+  box-shadow: 0 0 0 3px var(--accent-light, #fff8d6);
+}
+
+.gamza-input::placeholder {
+  color: var(--text-muted, #9e9189);
+}
+
+.input-counter {
+  position: absolute;
+  right: 12px;
+  font-size: 11px;
+  color: var(--text-muted, #9e9189);
+  pointer-events: none;
+}
+
+.gamza-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-main, #2c2523);
+  background: #ffffff;
+  border: 1.5px solid var(--border-color, #e6ded5);
+  border-radius: var(--radius-sm, 8px);
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 110px;
+  font-family: inherit;
+  transition: var(--transition, all 0.2s ease);
+}
+
+.gamza-textarea:focus {
+  outline: none;
+  border-color: var(--primary, #8d5b38);
+  box-shadow: 0 0 0 3px var(--accent-light, #fff8d6);
+}
+
+.gamza-textarea::placeholder {
+  color: var(--text-muted, #9e9189);
+}
+
+.desc-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   5. 카테고리 칩 그리드
+   -------------------------------------------------------------------------- */
+.category-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.category-chip-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 10px;
+  background: var(--bg-muted, #f3ede6);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm, 8px);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-sub, #6c5f59);
+  cursor: pointer;
+  transition: var(--transition, all 0.18s ease);
+  user-select: none;
+}
+
+.category-chip-btn:hover {
+  background: var(--primary-soft, #f8f3ee);
+  border-color: var(--primary-light, #ede0d4);
+  color: var(--primary, #9c6644);
+}
+
+.category-chip-btn.active {
+  background: var(--accent, #ffd000);
+  border-color: var(--accent-border, #fed94a);
+  color: var(--accent-contrast, #241a10);
+  font-weight: 800;
+  box-shadow: 0 3px 10px var(--accent-shadow, rgba(255, 208, 0, 0.38));
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   6. 가격 & 나눔하기 옵션
+   -------------------------------------------------------------------------- */
+.price-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.free-sharing-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-text, #664600);
+  cursor: pointer;
+  user-select: none;
+  background: var(--accent-light, #fff8d6);
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid var(--accent-border, #fed94a);
+  transition: all 0.2s ease;
+}
+
+.free-sharing-label:hover {
+  background: #fffae0;
+}
+
+.free-sharing-label input[type="checkbox"] {
+  accent-color: var(--accent, #ffd000);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.price-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary, #9c6644);
+  pointer-events: none;
+}
+
+.price-input {
+  padding-left: 32px;
+  padding-right: 120px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.price-formatted-preview {
+  position: absolute;
+  right: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary, #9c6644);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. 2열 그리드 (거래 동네 & 판매 상태)
+   -------------------------------------------------------------------------- */
+.form-row-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 14px;
+}
+
+.icon-input {
+  padding-left: 36px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.quick-locations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.quick-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--bg-muted, #f3ede6);
+  border-radius: var(--radius-full, 9999px);
+  color: var(--text-sub, #6c5f59);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-tag:hover {
+  background: var(--primary-light, #ede0d4);
+  color: var(--primary, #9c6644);
+}
+
+/* 판매 상태 칩 그룹 */
+.status-chips-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid var(--border-color, #e6ded5);
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.status-chip input[type="radio"] {
+  accent-color: var(--primary, #9c6644);
+  cursor: pointer;
+}
+
+.status-chip:hover {
+  border-color: var(--primary, #9c6644);
+  background: var(--primary-soft, #f8f3ee);
+}
+
+.status-chip.is-active-sale {
+  background: var(--status-sale-bg, #e8f5e9);
+  border-color: var(--status-sale-border, #c8e6c9);
+  color: var(--status-sale-text, #1b5e20);
+}
+
+.status-chip.is-active-reserved {
+  background: var(--status-reserved-bg, #fef3c7);
+  border-color: var(--status-reserved-border, #fde68a);
+  color: var(--status-reserved-text, #b45309);
+}
+
+.status-chip.is-active-sold {
+  background: var(--status-sold-bg, #f3f4f6);
+  border-color: var(--status-sold-border, #e5e7eb);
+  color: var(--status-sold-text, #4b5563);
+}
+
+/* --------------------------------------------------------------------------
+   8. 에러 메시지 & 유효성 시각 효과
+   -------------------------------------------------------------------------- */
+.field-error-msg {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e63946;
+  min-height: 16px;
+  display: none;
+  animation: fadeInDown 0.2s ease forwards;
+}
+
+.field-error-msg.visible {
+  display: block;
+}
+
+.gamza-input.input-error,
+.gamza-textarea.input-error {
+  border-color: #e63946 !important;
+  background-color: #fff8f8;
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15) !important;
+  animation: shakeX 0.3s ease;
+}
+
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   9. 모달 하단 푸터 & 작성 완료 버튼
+   -------------------------------------------------------------------------- */
+.gamza-modal-footer {
+  padding: 16px 24px;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-subtle, #f0eae1);
+  flex-shrink: 0;
+}
+
+.footer-btn-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-cancel {
+  height: 50px;
+  padding: 0 20px;
+  background: var(--bg-muted, #f3ede6);
+  color: var(--text-sub, #6c5f59);
+  border: 1px solid var(--border-color, #e6ded5);
+  border-radius: var(--radius-md, 14px);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition, all 0.2s ease);
+}
+
+.btn-cancel:hover {
+  background: #ece3d8;
+  color: var(--text-main, #2c2523);
+}
+
+.btn-submit {
+  flex: 1;
+  height: 50px;
+  background: var(--accent, #ffd000);
+  color: var(--accent-contrast, #241a10);
+  border: 1px solid var(--accent-border, #fed94a);
+  border-radius: var(--radius-md, 14px);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px var(--accent-shadow, rgba(255, 208, 0, 0.42));
+  transition: var(--transition, all 0.2s cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.btn-submit:hover {
+  background: var(--accent-hover, #f0c200);
+  box-shadow: 0 6px 20px rgba(255, 208, 0, 0.52);
+  transform: translateY(-1px);
+}
+
+.btn-submit:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(255, 208, 0, 0.3);
+}
+
+.btn-potato-icon {
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.btn-submit:hover .btn-potato-icon {
+  transform: rotate(-15deg) scale(1.15);
+}
+
+/* --------------------------------------------------------------------------
+   10. 감자 토스트 알림 (Toast)
+   -------------------------------------------------------------------------- */
+.gamza-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(44, 37, 35, 0.94);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 13px 24px;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 14.5px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 100000;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.gamza-toast.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   11. 유틸리티 & 접근성
+   -------------------------------------------------------------------------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. 반응형 최적화 (모바일 지원)
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .gamza-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .gamza-modal-container {
+    max-width: 100%;
+    max-height: 94vh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    transform: translateY(100%);
+  }
+
+  .gamza-modal-overlay.is-open .gamza-modal-container {
+    transform: translateY(0);
+  }
+
+  .gamza-modal-body {
+    padding: 18px 16px;
+    gap: 18px;
+  }
+
+  .form-row-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .category-chips-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .image-input-methods {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .image-preview-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .image-preview-box {
+    width: 100%;
+    max-width: 200px;
+    height: 140px;
+  }
+
+  .status-chips-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .status-chip {
+    flex: 1;
+    min-width: 90px;
+    justify-content: center;
+  }
+
+  .gamza-modal-footer {
+    padding: 14px 16px;
+  }
+}

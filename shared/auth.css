@@ -1,0 +1,482 @@
+/* ==========================================================================
+   감자 (Gamza) - 회원 인증 (Auth) 모달 및 헤더 전용 스타일시트
+   shared/auth.css
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 상단 헤더 액션 내 인증 영역 스타일
+   -------------------------------------------------------------------------- */
+.auth-header-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-header-group.hidden {
+  display: none !important;
+}
+
+/* 로그인 후: 프로필 배지 */
+.header-user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px 0 10px;
+  background-color: var(--primary-soft, #f8f2ec);
+  border: 1.5px solid var(--border-color, #e6dbcf);
+  border-radius: var(--radius-full, 9999px);
+  cursor: default;
+  transition: var(--transition, all 0.2s ease);
+}
+
+.header-user-badge:hover {
+  border-color: var(--primary, #8d5b38);
+  background-color: #fff9f3;
+}
+
+.header-user-potato {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.header-user-nickname {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main, #2c2523);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-user-temp {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #c05621;
+  background-color: #feebc8;
+  padding: 2px 7px;
+  border-radius: var(--radius-full, 9999px);
+  line-height: 1.2;
+}
+
+/* 로그인 후: 로그아웃 버튼 */
+.btn-logout {
+  height: 40px;
+  padding: 0 14px;
+  background-color: transparent;
+  border: 1.5px solid var(--border-color, #e6dbcf);
+  border-radius: var(--radius-full, 9999px);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sub, #66564e);
+  cursor: pointer;
+  transition: var(--transition, all 0.2s ease);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-logout:hover {
+  border-color: #e53e3e;
+  color: #e53e3e;
+  background-color: #fff5f5;
+}
+
+.btn-logout:active {
+  transform: scale(0.97);
+}
+
+/* --------------------------------------------------------------------------
+   2. 목록 카드 내 작성자 닉네임 뱃지 스타일 (Req 4)
+   -------------------------------------------------------------------------- */
+.card-seller-name {
+  font-weight: 600;
+  color: var(--primary, #8d5b38);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-seller-name .author-icon-svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  fill: var(--primary, #8d5b38);
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
+   3. 인증 모달 (Login & Sign Up Modal)
+   -------------------------------------------------------------------------- */
+#gamza-auth-modal.gamza-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.24s ease;
+}
+
+#gamza-auth-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+#gamza-auth-modal .gamza-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(36, 26, 16, 0.62);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.gamza-auth-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: 20px;
+  background: #ffffff;
+  border-radius: var(--radius-lg, 20px);
+  padding: 34px 28px 28px;
+  box-shadow: 0 20px 60px rgba(60, 35, 15, 0.28);
+  z-index: 2;
+  transform: translateY(18px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+#gamza-auth-modal.is-open .gamza-auth-dialog {
+  transform: translateY(0) scale(1);
+}
+
+/* 닫기 버튼 */
+.gamza-auth-dialog .gamza-modal-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-muted, #f4ede5);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-sub, #66564e);
+  transition: var(--transition, all 0.2s ease);
+}
+
+.gamza-auth-dialog .gamza-modal-close-btn:hover {
+  background: var(--primary-light, #eddccd);
+  color: var(--primary-hover, #734626);
+  transform: rotate(90deg);
+}
+
+.gamza-auth-dialog .gamza-modal-close-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* 모달 헤더 */
+.auth-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.auth-logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #fff4d2, #ffe494);
+  border: 2px solid var(--accent-border, #fed94a);
+  border-radius: 50%;
+  font-size: 28px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(255, 208, 0, 0.3);
+}
+
+.auth-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main, #2b221d);
+  letter-spacing: -0.4px;
+  margin-bottom: 6px;
+}
+
+.auth-sub {
+  font-size: 13.5px;
+  color: var(--text-sub, #66564e);
+  line-height: 1.45;
+}
+
+/* 탭 전환 세그먼트 (로그인 / 회원가입) */
+.auth-tabs {
+  display: flex;
+  background-color: var(--bg-muted, #f4ede5);
+  padding: 4px;
+  border-radius: var(--radius-md, 14px);
+  margin-bottom: 20px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 10px 0;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted, #99877d);
+  cursor: pointer;
+  transition: var(--transition, all 0.2s ease);
+  text-align: center;
+}
+
+.auth-tab-btn:hover {
+  color: var(--text-main, #2b221d);
+}
+
+.auth-tab-btn.active {
+  background-color: #ffffff;
+  color: var(--primary-hover, #734626);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(70, 45, 25, 0.08);
+}
+
+/* 알림 / 에러 피드백 박스 */
+.auth-alert-box {
+  padding: 11px 14px;
+  border-radius: var(--radius-sm, 8px);
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeInDown 0.25s ease forwards;
+}
+
+.auth-alert-box.hidden {
+  display: none !important;
+}
+
+.auth-alert-box.alert-error {
+  background-color: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+}
+
+.auth-alert-box.alert-info {
+  background-color: #fffaf0;
+  border: 1px solid #feebc8;
+  color: #c05621;
+}
+
+.auth-alert-box.alert-success {
+  background-color: #f0fff4;
+  border: 1px solid #9ae6b4;
+  color: #276749;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 폼 필드 그룹 */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-field-group.hidden {
+  display: none !important;
+}
+
+.auth-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main, #2b221d);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.required-star {
+  color: #e53e3e;
+  font-weight: 800;
+}
+
+.auth-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  background-color: var(--bg-card, #ffffff);
+  border: 1.5px solid var(--border-color, #e6dbcf);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 14.5px;
+  color: var(--text-main, #2b221d);
+  outline: none;
+  transition: var(--transition, all 0.2s ease);
+  box-sizing: border-box;
+}
+
+.auth-input:focus {
+  border-color: var(--accent, #ffd000);
+  box-shadow: 0 0 0 3px var(--accent-light, #fff8d6);
+}
+
+.auth-input::placeholder {
+  color: var(--text-muted, #99877d);
+  font-size: 13.5px;
+}
+
+/* 인풋 내부 보조 버튼 (🎲 추천, 👁️ 비밀번호 토글) */
+.btn-input-addon {
+  position: absolute;
+  right: 8px;
+  height: 30px;
+  padding: 0 10px;
+  background-color: var(--bg-muted, #f4ede5);
+  border: 1px solid var(--border-color, #e6dbcf);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub, #66564e);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition, all 0.2s ease);
+}
+
+.btn-input-addon:hover {
+  background-color: var(--primary-light, #eddccd);
+  color: var(--primary-hover, #734626);
+}
+
+.auth-field-desc {
+  font-size: 11.5px;
+  color: var(--text-muted, #99877d);
+}
+
+/* 제출 버튼 */
+.btn-auth-submit {
+  width: 100%;
+  height: 46px;
+  margin-top: 6px;
+  background-color: var(--accent, #ffd000);
+  border: 1px solid var(--accent-border, #fed94a);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--accent-contrast, #241a10);
+  cursor: pointer;
+  transition: var(--transition, all 0.2s ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px var(--accent-shadow, rgba(255, 208, 0, 0.42));
+}
+
+.btn-auth-submit:hover:not(:disabled) {
+  background-color: var(--accent-hover, #f0c200);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px var(--accent-shadow, rgba(255, 208, 0, 0.48));
+}
+
+.btn-auth-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-auth-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  filter: grayscale(20%);
+}
+
+/* 하단 전환 안내 링크 */
+.auth-footer-link {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-sub, #66564e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-text-link {
+  background: none;
+  border: none;
+  color: var(--primary, #8d5b38);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.btn-text-link:hover {
+  color: var(--primary-hover, #734626);
+}
+
+/* 모바일 반응형 대응 */
+@media (max-width: 640px) {
+  .gamza-auth-dialog {
+    padding: 26px 20px 22px;
+    margin: 12px;
+  }
+
+  .header-user-badge {
+    height: 36px;
+    padding: 0 10px 0 8px;
+  }
+
+  .header-user-nickname {
+    max-width: 80px;
+    font-size: 12.5px;
+  }
+
+  .header-user-temp {
+    display: none; /* 모바일에서 공간 절약 */
+  }
+
+  .btn-logout {
+    height: 36px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}

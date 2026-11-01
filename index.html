@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>감자(Gamza) - 우리 동네 따뜻한 중고 거래</title>
+
+  <!-- 파비콘 및 메타 -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥔</text></svg>">
+  <meta name="description" content="포슬포슬 따뜻한 이웃 간의 중고 거래 마켓 감자(Gamza)">
+
+  <!-- Google Pretendard Font CDN -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+  <!-- 스타일시트 연결 -->
+  <link rel="stylesheet" href="./shared/design_tokens.css">
+  <link rel="stylesheet" href="./shared/auth.css">
+  <link rel="stylesheet" href="./components/screen1_list.css">
+  <link rel="stylesheet" href="./components/screen2_detail.css">
+  <link rel="stylesheet" href="./components/screen3_write.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       [화면 1] 상품 목록 및 상단 헤더 / 필터 컨트롤
+       ========================================================================= -->
+  <div id="screen1-root" class="gamza-screen1">
+    
+    <!-- 1. 상단 글로벌 헤더 -->
+    <header class="gamza-header">
+      <div class="header-container">
+        
+        <!-- 브랜드 로고 -->
+        <a href="javascript:void(0)" class="brand-logo" id="brand-logo" title="감자마켓 홈으로 이동">
+          <div class="logo-icon-wrap">
+            <svg class="logo-potato-svg" viewBox="0 0 24 24">
+              <path d="M18.8 6.5c-1.5-2.2-4.2-3.5-7.1-3.5-4.2 0-7.7 2.6-8.7 6.6-.7 2.8-.2 5.7 1.3 8.1 1.6 2.6 4.4 4.3 7.5 4.3 3.6 0 7-2.1 8.5-5.3 1.2-2.5 1.1-5.6-.2-8.2zM7.5 10c-.8 0-1.5-.7-1.5-1.5S6.7 7 7.5 7s1.5.7 1.5 1.5S8.3 10 7.5 10zm8 4c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5 1.5.7 1.5 1.5-.7 1.5-1.5 1.5zm-5 4c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z"/>
+            </svg>
+          </div>
+          <div class="logo-text-group">
+            <div class="logo-title">
+              감자 <span class="tag">마켓</span>
+            </div>
+            <div class="logo-sub">우리 동네 따뜻한 직거래</div>
+          </div>
+        </a>
+
+        <!-- 검색창 -->
+        <div class="search-wrapper">
+          <input 
+            type="search" 
+            id="search-input" 
+            class="search-input-box" 
+            placeholder="동네 이름, 물품명, 브랜드 검색 (예: 맥북, 인형, 테이블)" 
+            autocomplete="off"
+            aria-label="상품 검색"
+          />
+          <svg class="search-icon-svg" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <button type="button" id="search-clear-btn" class="search-clear-btn" aria-label="검색어 지우기" title="검색어 지우기">×</button>
+        </div>
+
+        <!-- 헤더 액션 버튼: [로그인] / [닉네임 + 로그아웃], [글쓰기] -->
+        <div class="header-actions">
+          <!-- 1) 로그인 전 (로그아웃 상태): [로그인] 버튼만 표시 (Req 2) -->
+          <div id="auth-logged-out" class="auth-header-group">
+            <button type="button" id="btn-login" class="btn-login" aria-label="감자마켓 로그인">
+              로그인
+            </button>
+          </div>
+
+          <!-- 2) 로그인 후: [로그인] 숨김, [닉네임]과 [로그아웃] 버튼만 표시 (Req 2) -->
+          <div id="auth-logged-in" class="auth-header-group hidden">
+            <div class="header-user-badge" id="header-user-badge" title="내 감자 프로필">
+              <span class="header-user-potato">🥔</span>
+              <span class="header-user-nickname" id="header-user-nickname">내 닉네임</span>
+              <span class="header-user-temp" id="header-user-temp">36.5℃</span>
+            </div>
+            <button type="button" id="btn-logout" class="btn-logout" aria-label="로그아웃" title="로그아웃">
+              로그아웃
+            </button>
+          </div>
+          
+          <!-- 3) 글쓰기 버튼 -->
+          <button type="button" id="btn-write" class="btn-write" aria-label="내 물건 팔기 글쓰기">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+            <span>글쓰기</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- 2. 메인 컨텐츠 영역 -->
+    <main class="gamza-main">
+      
+      <!-- 환영 이웃 배너 -->
+      <section class="warm-banner" aria-label="감자마켓 이웃 환영 배너">
+        <div class="warm-banner-content">
+          <h2>🥔 포슬포슬 따뜻한 이웃 간의 거래</h2>
+          <p>내 근처 이웃들이 정성껏 내놓은 오늘자의 감자(중고 물품)들을 확인해보세요!</p>
+        </div>
+        <div class="banner-badge">
+          인증된 동네 이웃 100% 직거래
+        </div>
+      </section>
+
+      <!-- 필터 & 컨트롤 섹션 -->
+      <section class="controls-card" aria-label="상품 카테고리 및 필터">
+        
+        <!-- 카테고리 탭 바 -->
+        <div class="category-bar-wrapper">
+          <div class="category-scroll-container" role="tablist" aria-label="카테고리 선택">
+            <button type="button" class="category-pill active" data-category="전체" role="tab" aria-selected="true">
+              <span class="cat-icon">🥔</span> 전체
+            </button>
+            <button type="button" class="category-pill" data-category="디지털기기" role="tab" aria-selected="false">
+              <span class="cat-icon">💻</span> 디지털기기
+            </button>
+            <button type="button" class="category-pill" data-category="가구/인테리어" role="tab" aria-selected="false">
+              <span class="cat-icon">🛋️</span> 가구/인테리어
+            </button>
+            <button type="button" class="category-pill" data-category="의류" role="tab" aria-selected="false">
+              <span class="cat-icon">👕</span> 의류
+            </button>
+            <button type="button" class="category-pill" data-category="생활가전" role="tab" aria-selected="false">
+              <span class="cat-icon">☕</span> 생활가전
+            </button>
+            <button type="button" class="category-pill" data-category="도서/티켓" role="tab" aria-selected="false">
+              <span class="cat-icon">📚</span> 도서/티켓
+            </button>
+            <button type="button" class="category-pill" data-category="기타" role="tab" aria-selected="false">
+              <span class="cat-icon">📦</span> 기타
+            </button>
+          </div>
+        </div>
+
+        <!-- 필터 메타 바: 수량, '거래 가능한 보기' 토글, 정렬 -->
+        <div class="filter-meta-bar">
+          
+          <div class="meta-count-area">
+            총 <strong id="product-count-number">6</strong>개의 감자
+            <span id="active-filter-tags"></span>
+          </div>
+
+          <div class="meta-controls-right">
+            <!-- '거래 가능만 보기' Toggle Switch -->
+            <label class="toggle-available-label" for="toggle-available">
+              <input type="checkbox" id="toggle-available" class="toggle-switch-input" />
+              <span class="toggle-slider"></span>
+              <span>거래 가능만 보기</span>
+            </label>
+
+            <!-- 정렬 셀렉트 박스 -->
+            <div class="sort-select-wrapper">
+              <select id="sort-select" class="sort-select" aria-label="상품 정렬 순서">
+                <option value="latest">최신순</option>
+                <option value="popular">인기순</option>
+                <option value="price-asc">낮은 가격순</option>
+                <option value="price-desc">높은 가격순</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- 3. 상품 카드 그리드 (6개 가짜 상품 렌더링) -->
+      <section class="product-grid" id="product-grid" aria-label="상품 목록 그리드">
+        <!-- JS로 동적 렌더링 -->
+      </section>
+
+      <!-- 4. 결과 없음 빈 화면 (Empty State) -->
+      <div class="empty-state-card" id="empty-state" style="display: none;">
+        <div class="empty-potato-icon">🥔</div>
+        <h3 class="empty-state-title">찾으시는 감자가 없어요!</h3>
+        <p class="empty-state-desc">
+          검색어 철자를 확인해보시거나, 활성화된 필터를 초기화하여 다른 동네 물품들을 둘러보세요.
+        </p>
+        <button type="button" class="btn-reset-filters" id="btn-reset-empty">
+          필터 초기화
+        </button>
+      </div>
+
+    </main>
+
+  </div>
+
+
+  <!-- =========================================================================
+       [인증 모달] 로그인 & 회원가입 - #gamza-auth-modal (Req 1, Req 2, Req 3)
+       ========================================================================= -->
+  <div id="gamza-auth-modal" class="gamza-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div class="gamza-modal-backdrop" id="auth-modal-backdrop"></div>
+    <div class="gamza-auth-dialog">
+      <!-- 닫기 버튼 (X) -->
+      <button type="button" class="gamza-modal-close-btn" id="btn-close-auth-modal" aria-label="로그인 팝업 닫기" title="닫기 (ESC)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- 헤더 -->
+      <div class="auth-header">
+        <div class="auth-logo-badge">🥔</div>
+        <h2 id="auth-modal-title" class="auth-title">감자마켓 로그인</h2>
+        <p class="auth-sub" id="auth-sub-desc">포슬포슬 따뜻한 이웃과의 거래를 시작해보세요!</p>
+      </div>
+
+      <!-- 탭 바: [로그인] / [회원가입] -->
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab-btn active" id="tab-btn-signin" role="tab" aria-selected="true">로그인</button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-signup" role="tab" aria-selected="false">회원가입</button>
+      </div>
+
+      <!-- 폼 -->
+      <form id="gamza-auth-form" class="auth-form" novalidate>
+        <!-- 에러/안내 메시지 알림 박스 -->
+        <div id="auth-alert-box" class="auth-alert-box hidden" role="alert"></div>
+
+        <!-- 닉네임 (회원가입 시 필수 표시) -->
+        <div class="auth-field-group hidden" id="field-group-nickname">
+          <label for="auth-nickname" class="auth-label">
+            <span>닉네임</span> <span class="required-star">*</span>
+          </label>
+          <div class="auth-input-wrap">
+            <input type="text" id="auth-nickname" class="auth-input" placeholder="멋진 감자 닉네임 (예: 포슬포슬감자)" maxlength="20" />
+            <button type="button" id="btn-random-nickname" class="btn-input-addon" title="감자 닉네임 추천받기">🎲 추천</button>
+          </div>
+          <span class="auth-field-desc">이웃에게 보여질 활동 이름입니다. (2~20자)</span>
+        </div>
+
+        <!-- 활동 동네 (회원가입 시 표시) -->
+        <div class="auth-field-group hidden" id="field-group-location">
+          <label for="auth-location" class="auth-label">
+            <span>활동 동네</span>
+          </label>
+          <div class="auth-input-wrap">
+            <input type="text" id="auth-location" class="auth-input" placeholder="예: 강남구 역삼1동" value="강남구 역삼1동" maxlength="30" />
+          </div>
+        </div>
+
+        <!-- 이메일 주소 -->
+        <div class="auth-field-group">
+          <label for="auth-email" class="auth-label">
+            <span>이메일 주소</span> <span class="required-star">*</span>
+          </label>
+          <div class="auth-input-wrap">
+            <input type="email" id="auth-email" class="auth-input" placeholder="potato@example.com" required autocomplete="email" />
+          </div>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="auth-field-group">
+          <label for="auth-password" class="auth-label">
+            <span>비밀번호</span> <span class="required-star">*</span>
+          </label>
+          <div class="auth-input-wrap">
+            <input type="password" id="auth-password" class="auth-input" placeholder="6자리 이상 입력해주세요" required minlength="6" autocomplete="current-password" />
+            <button type="button" id="btn-toggle-password" class="btn-input-addon" aria-label="비밀번호 보기">👁️</button>
+          </div>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <button type="submit" id="btn-auth-submit" class="btn-auth-submit">
+          <span class="btn-text">로그인하기</span>
+        </button>
+
+        <!-- 하단 전환 링크 -->
+        <div class="auth-footer-link">
+          <span id="auth-switch-text">아직 감자 계정이 없으신가요?</span>
+          <button type="button" id="btn-switch-auth-mode" class="btn-text-link">회원가입하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       [화면 2] 상세 팝업 (모달) - #gamza-detail-modal
+       ========================================================================= -->
+  <div id="gamza-detail-modal" class="gamza-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="gamza-modal-title">
+    <div class="gamza-modal-dialog">
+      <!-- 모바일 바텀 시트 드래그 핸들 -->
+      <div class="gamza-modal-sheet-handle" aria-hidden="true"></div>
+
+      <!-- 닫기 버튼 (X) -->
+      <button type="button" class="gamza-modal-close-btn" id="gamza-modal-close-btn" aria-label="상세 팝업 닫기" title="닫기 (ESC)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- 스크롤 가능한 본문 영역 -->
+      <div class="gamza-modal-scrollable">
+        <!-- 상단 절반: 대형 상품 이미지 -->
+        <div class="gamza-detail-image-box">
+          <img id="gamza-detail-img" src="" alt="상품 이미지" loading="eager" />
+          <div class="gamza-detail-image-overlay"></div>
+        </div>
+
+        <!-- 본문 정보 영역 (순서: 상태, 카테고리, 상품명, 위치/시간, 가격, 설명) -->
+        <div class="gamza-detail-info-wrap">
+          <!-- 1) 판매 상태 태그 & 2) 카테고리 -->
+          <div class="gamza-detail-tag-row">
+            <span id="gamza-badge-status" class="gamza-badge-status status-selling">판매중</span>
+            <span id="gamza-badge-category" class="gamza-badge-category">카테고리</span>
+          </div>
+
+          <!-- 3) 상품명 -->
+          <h2 id="gamza-modal-title" class="gamza-detail-title">상품 제목</h2>
+
+          <!-- 4) 판매위치 및 업로드 시간 -->
+          <div class="gamza-detail-meta">
+            <span id="gamza-meta-location" class="gamza-detail-meta-location">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span id="gamza-meta-location-text">위치 정보</span>
+            </span>
+            <span class="gamza-detail-meta-dot">·</span>
+            <span id="gamza-meta-time">시간 정보</span>
+          </div>
+
+          <!-- 5) 가격 -->
+          <div class="gamza-detail-price-box">
+            <span id="gamza-detail-price" class="gamza-detail-price">0원</span>
+          </div>
+
+          <!-- 작성자 전용 판매 상태 선택 바 (요구사항 1) -->
+          <div id="gamza-owner-status-box" class="gamza-owner-status-box hidden">
+            <div class="owner-status-header">
+              <span class="owner-status-label">🥔 내 게시글 판매 상태 설정</span>
+              <span class="owner-status-guide">클릭 시 즉시 상태가 저장됩니다</span>
+            </div>
+            <div class="owner-status-btn-group" role="group" aria-label="판매 상태 선택">
+              <button type="button" class="btn-owner-status" data-status="판매중">
+                <span class="status-dot dot-sale"></span> 판매중
+              </button>
+              <button type="button" class="btn-owner-status" data-status="예약중">
+                <span class="status-dot dot-reserved"></span> 예약중
+              </button>
+              <button type="button" class="btn-owner-status" data-status="거래 완료">
+                <span class="status-dot dot-sold"></span> 거래 완료
+              </button>
+            </div>
+          </div>
+
+          <div class="gamza-detail-divider" aria-hidden="true"></div>
+
+          <!-- 6) 상품 설명 -->
+          <div id="gamza-detail-description" class="gamza-detail-description">
+            상품 설명 텍스트
+          </div>
+
+          <!-- 판매자 정보 카드 영역 (프로필, 닉네임, 지역, 포슬지수 감자온도) -->
+          <div class="gamza-seller-card">
+            <div class="gamza-seller-header">
+              <div class="gamza-seller-profile-group">
+                <div class="gamza-seller-avatar-wrap">
+                  <img id="gamza-seller-avatar" src="" alt="판매자 프로필" />
+                </div>
+                <div class="gamza-seller-info-text">
+                  <span id="gamza-seller-name" class="gamza-seller-name">판매자명</span>
+                  <span id="gamza-seller-location" class="gamza-seller-location">동네 정보</span>
+                </div>
+              </div>
+
+              <!-- 포슬 지수 / 감자 온도 게이지 바 -->
+              <div class="gamza-potato-temp-box">
+                <div class="gamza-temp-value-row">
+                  <span class="gamza-temp-label">포슬 지수</span>
+                  <span id="gamza-potato-degree" class="gamza-temp-degree">36.5℃</span>
+                  <span class="gamza-temp-potato-icon" aria-hidden="true">🥔</span>
+                </div>
+                <div class="gamza-temp-gauge-track" title="감자 온도 게이지">
+                  <div id="gamza-potato-gauge-fill" class="gamza-temp-gauge-fill"></div>
+                </div>
+                <div id="gamza-potato-remark" class="gamza-temp-remark">훈훈하고 따뜻한 감자</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 맨 아래 고정 액션 버튼 바: 일반 방문자용 / 작성자 전용(수정/삭제) 분기 -->
+      <div class="gamza-modal-action-bar">
+        <!-- 1) 일반 방문자용 (관심 추가, 채팅 시작하기) -->
+        <div id="gamza-buyer-action-group" class="gamza-buyer-action-group">
+          <button type="button" id="gamza-btn-like" class="gamza-btn-like" aria-label="관심 상품에 추가">
+            <svg class="gamza-btn-like-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span id="gamza-btn-like-count" class="gamza-btn-like-count">0</span>
+          </button>
+
+          <button type="button" id="gamza-btn-chat-cta" class="gamza-btn-chat-cta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>채팅 시작하기</span>
+          </button>
+        </div>
+
+        <!-- 2) 작성자 전용 (수정 / 삭제) (요구사항 1) -->
+        <div id="gamza-owner-action-group" class="gamza-owner-action-group hidden">
+          <button type="button" id="gamza-btn-delete-post" class="gamza-btn-owner-delete" title="게시글 삭제">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+            <span>삭제</span>
+          </button>
+          <button type="button" id="gamza-btn-edit-post" class="gamza-btn-owner-edit" title="게시글 수정">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            <span>수정하기</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- =========================================================================
+       [화면 3] 글쓰기 (모달) - #gamza-write-modal
+       ========================================================================= -->
+  <div id="gamza-write-modal" class="gamza-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="gamza-write-modal-title">
+    <!-- 모달 백드롭 배경 (클릭 시 닫기) -->
+    <div class="gamza-modal-backdrop" data-close-modal></div>
+
+    <div class="gamza-modal-container">
+      <!-- 1. 헤더 영역 -->
+      <header class="gamza-modal-header">
+        <div class="header-left">
+          <h2 id="gamza-write-modal-title" class="gamza-modal-title">내 물건 팔기</h2>
+        </div>
+        <button type="button" class="gamza-modal-close-btn" data-close-modal aria-label="닫기">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <!-- 2. 바디 폼 영역 -->
+      <form id="gamza-write-form" class="gamza-write-form" novalidate>
+        <div class="gamza-modal-body">
+          
+          <!-- 1) 상품 이미지 업로드 섹션 -->
+          <div class="form-section image-upload-section">
+            <label class="form-label required">
+              <span>상품 이미지</span>
+              <span class="image-sub-label">최대 1장 (미등록 시 감자 기본 일러스트 적용)</span>
+            </label>
+
+            <div class="image-input-methods">
+              <!-- 썸네일 미리보기 & 파일 선택 드롭존 -->
+              <div class="image-preview-wrapper" id="image-preview-wrapper">
+                <div class="image-preview-box" id="image-preview-box" title="사진을 업로드하려면 클릭하거나 끌어다 놓으세요">
+                  <img id="image-preview-img" src="" alt="상품 썸네일 미리보기" class="image-preview-img hidden" />
+                  <div id="image-placeholder" class="image-placeholder">
+                    <span class="placeholder-icon">📸</span>
+                    <span class="placeholder-text">사진 등록</span>
+                    <span class="placeholder-tip">클릭 또는 드래그</span>
+                  </div>
+                </div>
+                <!-- 숨겨진 파일 인풋 -->
+                <input type="file" id="write-image-file" accept="image/*" class="visually-hidden" />
+              </div>
+
+              <!-- 이미지 선택 컨트롤 -->
+              <div class="image-control-actions">
+                <button type="button" class="btn-file-select" id="btn-trigger-file">
+                  <span>📁 내 기기에서 사진 찾기</span>
+                </button>
+                <button type="button" class="btn-use-default-potato" id="btn-use-default-potato">
+                  <span>🥔 귀여운 감자 기본 이미지 쓰기</span>
+                </button>
+                <div class="image-url-row">
+                  <span class="url-label">웹 이미지 URL 직접 입력:</span>
+                  <div class="url-input-wrap">
+                    <input type="url" id="write-image-url" placeholder="https://... 이미지 링크 주소 입력" />
+                    <button type="button" id="btn-apply-url" class="btn-url-apply">적용</button>
+                  </div>
+                </div>
+                <div class="image-current-status">
+                  <span class="status-indicator"></span>
+                  <span class="status-msg">포슬포슬 감자 기본 이미지가 준비되었습니다.</span>
+                  <button type="button" id="btn-remove-image" class="btn-remove-img hidden" title="이미지 지우기">✕ 제거</button>
+                </div>
+              </div>
+            </div>
+            <div class="field-error-msg" id="error-imageUrl"></div>
+          </div>
+
+          <!-- 2) 상품명 (제목) -->
+          <div class="form-section">
+            <label for="write-title" class="form-label required">상품명</label>
+            <div class="input-wrap">
+              <input type="text" id="write-title" name="title" class="gamza-input" placeholder="글 제목을 입력해주세요" maxlength="60" required />
+              <span class="input-counter" id="title-counter">0/60</span>
+            </div>
+            <div class="field-error-msg" id="error-title"></div>
+          </div>
+
+          <!-- 3) 카테고리 -->
+          <div class="form-section">
+            <label class="form-label required">카테고리</label>
+            <div class="category-chips-grid" id="category-chips">
+              <!-- JS에서 동적 렌더링 -->
+            </div>
+            <input type="hidden" id="write-category" name="category" required />
+            <div class="field-error-msg" id="error-category"></div>
+          </div>
+
+          <!-- 4) 거래 가격 및 나눔하기 -->
+          <div class="form-section">
+            <div class="price-header-row">
+              <label for="write-price" class="form-label required">가격</label>
+              <label class="free-sharing-label">
+                <input type="checkbox" id="write-free-sharing" />
+                <span>🥔 나눔하기 (0원)</span>
+              </label>
+            </div>
+            <div class="price-input-wrap">
+              <span class="currency-symbol">₩</span>
+              <input type="number" id="write-price" name="price" class="gamza-input price-input" placeholder="가격을 입력해주세요 (숫자만)" min="0" step="100" required />
+              <span class="price-formatted-preview" id="price-formatted"></span>
+            </div>
+            <div class="field-error-msg" id="error-price"></div>
+          </div>
+
+          <!-- 5) 2열 그리드: 거래 동네 & 판매 상태 -->
+          <div class="form-row-grid">
+            <!-- 거래 희망 동네 -->
+            <div class="form-section">
+              <label for="write-location" class="form-label required">거래 희망 동네</label>
+              <div class="input-wrap">
+                <span class="input-icon">📍</span>
+                <input type="text" id="write-location" name="location" class="gamza-input icon-input" placeholder="예: 강남구 역삼동" value="강남구 역삼1동" required />
+              </div>
+              <div class="quick-locations">
+                <span class="quick-tag" data-loc="강남구 역삼1동">역삼1동</span>
+                <span class="quick-tag" data-loc="서초구 서초동">서초동</span>
+                <span class="quick-tag" data-loc="서초구 양재2동">양재2동</span>
+                <span class="quick-tag" data-loc="서초구 반포동">반포동</span>
+              </div>
+              <div class="field-error-msg" id="error-location"></div>
+            </div>
+
+            <!-- 판매 상태 (판매중 / 예약중 / 거래 완료) -->
+            <div class="form-section">
+              <label class="form-label required">판매 상태</label>
+              <div class="status-chips-group">
+                <label class="status-chip is-active-sale">
+                  <input type="radio" name="write-status" value="판매중" checked />
+                  <span>🌱 판매중</span>
+                </label>
+                <label class="status-chip">
+                  <input type="radio" name="write-status" value="예약중" />
+                  <span>⏳ 예약중</span>
+                </label>
+                <label class="status-chip">
+                  <input type="radio" name="write-status" value="거래 완료" />
+                  <span>✅ 거래 완료</span>
+                </label>
+              </div>
+              <div class="field-error-msg" id="error-status"></div>
+            </div>
+          </div>
+
+          <!-- 6) 자세한 설명 -->
+          <div class="form-section">
+            <div class="desc-header-row">
+              <label for="write-description" class="form-label required">자세한 설명</label>
+              <span class="input-counter" id="desc-counter">0/500</span>
+            </div>
+            <textarea id="write-description" name="description" class="gamza-textarea" rows="5" maxlength="500" placeholder="신뢰할 수 있는 거래를 위해 구매 시기, 하자 유무, 거래 선호 장소 등을 자세히 적어주세요." required></textarea>
+            <div class="field-error-msg" id="error-description"></div>
+          </div>
+
+        </div>
+
+        <!-- 3. 푸터 액션 영역 -->
+        <footer class="gamza-modal-footer">
+          <div class="footer-btn-group">
+            <button type="button" class="btn-cancel" data-close-modal>취소</button>
+            <button type="submit" class="btn-submit" id="btn-submit-write">
+              <span class="btn-potato-icon">🥔</span>
+              <span class="btn-text">작성 완료</span>
+            </button>
+          </div>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- 통합 글로벌 감자 토스트 컨테이너 -->
+  <div id="gamza-toast-container" class="gamza-toast-container" aria-live="polite"></div>
+
+  <!-- =========================================================================
+       스크립트 로드 순서:
+       1) 공유 데이터 (가짜 상품 6개 및 카테고리 정의)
+       2) 컴포넌트 1 (상품 목록 로직)
+       3) 컴포넌트 2 (상세 팝업 로직)
+       4) 컴포넌트 3 (글쓰기 모달 로직)
+       5) 메인 오케스트레이터 (app.js)
+       ========================================================================= -->
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase 클라우드 데이터베이스 연동 브릿지 -->
+  <script src="./shared/supabase_client.js"></script>
+  <!-- 회원 인증 및 프로필 관리 모듈 -->
+  <script src="./shared/auth.js"></script>
+  
+  <script src="./shared/mock_data.js"></script>
+  <script src="./components/screen1_list.js"></script>
+  <script src="./components/screen2_detail.js"></script>
+  <script src="./components/screen3_write.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

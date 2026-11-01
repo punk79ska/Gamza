@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>감자(Gamza) 마켓 - 화면 3: 내 물건 팔기</title>
+  
+  <!-- 공통 디자인 토큰 -->
+  <link rel="stylesheet" href="../shared/design_tokens.css" />
+  <!-- 화면 3 글쓰기 전용 스타일시트 -->
+  <link rel="stylesheet" href="./screen3_write.css" />
+
+  <style>
+    /* 데모 및 단독 테스트용 기본 스타일 (임베딩 시에는 모달만 독립적으로 사용) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background-color: var(--bg-page, #faf7f2);
+      color: var(--text-main, #2c2523);
+      line-height: 1.5;
+      padding: 24px 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .demo-container {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .demo-header {
+      background: var(--bg-card, #ffffff);
+      padding: 24px;
+      border-radius: var(--radius-lg, 20px);
+      border: 1px solid var(--border-color, #e6ded5);
+      box-shadow: var(--shadow-sm, 0 2px 6px rgba(110, 75, 45, 0.06));
+      text-align: center;
+    }
+
+    .demo-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary, #9c6644);
+      margin-bottom: 8px;
+    }
+
+    .demo-header p {
+      color: var(--text-sub, #6c5f59);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .demo-open-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent, #ffd000);
+      color: var(--accent-contrast, #241a10);
+      border: 1px solid var(--accent-border, #fed94a);
+      font-size: 16px;
+      font-weight: 800;
+      padding: 14px 28px;
+      border-radius: var(--radius-full, 9999px);
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--accent-shadow, rgba(255, 208, 0, 0.42));
+      transition: var(--transition, all 0.2s ease);
+    }
+
+    .demo-open-btn:hover {
+      background: var(--accent-hover, #f0c200);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(255, 208, 0, 0.52);
+    }
+
+    /* 최근 등록된 상품 실시간 프리뷰 영역 */
+    .demo-log-card {
+      background: var(--bg-card, #ffffff);
+      padding: 20px;
+      border-radius: var(--radius-md, 14px);
+      border: 1px solid var(--border-color, #e6ded5);
+      box-shadow: var(--shadow-sm, 0 2px 6px rgba(110, 75, 45, 0.06));
+    }
+
+    .demo-log-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main, #2c2523);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-product-card {
+      display: flex;
+      gap: 16px;
+      padding: 14px;
+      border-radius: var(--radius-sm, 8px);
+      background: var(--primary-soft, #f8f3ee);
+      border: 1px solid var(--primary-light, #ede0d4);
+      align-items: center;
+    }
+
+    .demo-product-img {
+      width: 76px;
+      height: 76px;
+      border-radius: var(--radius-sm, 8px);
+      object-fit: cover;
+      background: #ffffff;
+      border: 1px solid var(--border-color, #e6ded5);
+      flex-shrink: 0;
+    }
+
+    .demo-product-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .demo-product-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main, #2c2523);
+    }
+
+    .demo-product-meta {
+      font-size: 12px;
+      color: var(--text-muted, #9e9189);
+      display: flex;
+      gap: 8px;
+    }
+
+    .demo-product-price {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary, #9c6644);
+    }
+
+    .demo-product-status {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--status-sale-bg, #e8f5e9);
+      color: var(--status-sale-text, #1b5e20);
+      margin-left: 6px;
+    }
+
+    .demo-empty-msg {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted, #9e9189);
+      font-size: 13.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================
+       단독 테스트 / 데모 환경용 뷰
+       ====================================================================== -->
+  <div class="demo-container">
+    <header class="demo-header">
+      <h1>🥔 감자마켓 글쓰기 컴포넌트</h1>
+      <p>화면 3: 내 물건 팔기 (글쓰기 모달 및 등록 유효성 검사)</p>
+      <button type="button" class="demo-open-btn" onclick="window.GamzaScreen3.openWriteModal()">
+        <span>✏️</span>
+        <span>내 물건 팔기 (글쓰기 모달 열기)</span>
+      </button>
+    </header>
+
+    <div class="demo-log-card">
+      <h3><span>📦</span> 최근 등록된 상품 프리뷰 (이벤트 수신 테스트)</h3>
+      <div id="demo-recent-product-container">
+        <div class="demo-empty-msg">
+          아직 등록된 상품이 없습니다. 상단의 [내 물건 팔기] 버튼을 눌러 새 글을 등록해보세요!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       [화면 3: 독립 컴포넌트 본체] 감자마켓 글쓰기 모달 (#gamza-write-modal)
+       ====================================================================== -->
+  <div id="gamza-write-modal" class="gamza-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="gamza-write-modal-title">
+    <!-- 모달 백드롭 배경 (클릭 시 닫기) -->
+    <div class="gamza-modal-backdrop" data-close-modal></div>
+
+    <div class="gamza-modal-container">
+      <!-- 1. 헤더 영역 -->
+      <header class="gamza-modal-header">
+        <div class="header-left">
+          <h2 id="gamza-write-modal-title" class="gamza-modal-title">내 물건 팔기</h2>
+        </div>
+        <button type="button" class="gamza-modal-close-btn" data-close-modal aria-label="닫기">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <!-- 2. 바디 폼 영역 -->
+      <form id="gamza-write-form" class="gamza-write-form" novalidate>
+        <div class="gamza-modal-body">
+          
+          <!-- 1) 상품 이미지 업로드 섹션 -->
+          <div class="form-section image-upload-section">
+            <label class="form-label required">
+              <span>상품 이미지</span>
+              <span class="image-sub-label">최대 1장 (미등록 시 감자 기본 일러스트 적용)</span>
+            </label>
+
+            <div class="image-input-methods">
+              <!-- 썸네일 미리보기 & 파일 선택 드롭존 -->
+              <div class="image-preview-wrapper" id="image-preview-wrapper">
+                <div class="image-preview-box" id="image-preview-box" title="사진을 업로드하려면 클릭하거나 끌어다 놓으세요">
+                  <img id="image-preview-img" src="" alt="상품 썸네일 미리보기" class="image-preview-img hidden" />
+                  <div id="image-placeholder" class="image-placeholder">
+                    <span class="placeholder-icon">📸</span>
+                    <span class="placeholder-text">사진 등록</span>
+                    <span class="placeholder-tip">클릭 또는 드래그</span>
+                  </div>
+                </div>
+                <!-- 숨겨진 파일 인풋 -->
+                <input type="file" id="write-image-file" accept="image/*" class="visually-hidden" />
+              </div>
+
+              <!-- 이미지 선택 컨트롤 -->
+              <div class="image-control-actions">
+                <button type="button" class="btn-file-select" id="btn-trigger-file">
+                  <span>📁 내 기기에서 사진 찾기</span>
+                </button>
+                <button type="button" class="btn-use-default-potato" id="btn-use-default-potato">
+                  <span>🥔 귀여운 감자 기본 이미지 쓰기</span>
+                </button>
+                <div class="image-url-row">
+                  <span class="url-label">웹 이미지 URL 직접 입력:</span>
+                  <div class="url-input-wrap">
+                    <input type="url" id="write-image-url" placeholder="https://... 이미지 링크 주소 입력" />
+                    <button type="button" id="btn-apply-url" class="btn-url-apply">적용</button>
+                  </div>
+                </div>
+                <div class="image-current-status">
+                  <span class="status-indicator"></span>
+                  <span class="status-msg">포슬포슬 감자 기본 이미지가 준비되었습니다.</span>
+                  <button type="button" id="btn-remove-image" class="btn-remove-img hidden" title="이미지 지우기">✕ 제거</button>
+                </div>
+              </div>
+            </div>
+            <div class="field-error-msg" id="error-imageUrl"></div>
+          </div>
+
+          <!-- 2) 상품명 (제목) -->
+          <div class="form-section">
+            <label for="write-title" class="form-label required">상품명</label>
+            <div class="input-wrap">
+              <input type="text" id="write-title" name="title" class="gamza-input" placeholder="글 제목을 입력해주세요" maxlength="60" required />
+              <span class="input-counter" id="title-counter">0/60</span>
+            </div>
+            <div class="field-error-msg" id="error-title"></div>
+          </div>
+
+          <!-- 3) 카테고리 -->
+          <div class="form-section">
+            <label class="form-label required">카테고리</label>
+            <div class="category-chips-grid" id="category-chips">
+              <!-- JS에서 동적 렌더링 -->
+            </div>
+            <input type="hidden" id="write-category" name="category" required />
+            <div class="field-error-msg" id="error-category"></div>
+          </div>
+
+          <!-- 4) 거래 가격 및 나눔하기 -->
+          <div class="form-section">
+            <div class="price-header-row">
+              <label for="write-price" class="form-label required">가격</label>
+              <label class="free-sharing-label">
+                <input type="checkbox" id="write-free-sharing" />
+                <span>🥔 나눔하기 (0원)</span>
+              </label>
+            </div>
+            <div class="price-input-wrap">
+              <span class="currency-symbol">₩</span>
+              <input type="number" id="write-price" name="price" class="gamza-input price-input" placeholder="가격을 입력해주세요 (숫자만)" min="0" step="100" required />
+              <span class="price-formatted-preview" id="price-formatted"></span>
+            </div>
+            <div class="field-error-msg" id="error-price"></div>
+          </div>
+
+          <!-- 5) 2열 그리드: 거래 동네 & 판매 상태 -->
+          <div class="form-row-grid">
+            <!-- 거래 희망 동네 -->
+            <div class="form-section">
+              <label for="write-location" class="form-label required">거래 희망 동네</label>
+              <div class="input-wrap">
+                <span class="input-icon">📍</span>
+                <input type="text" id="write-location" name="location" class="gamza-input icon-input" placeholder="예: 강남구 역삼동" value="강남구 역삼1동" required />
+              </div>
+              <div class="quick-locations">
+                <span class="quick-tag" data-loc="강남구 역삼1동">역삼1동</span>
+                <span class="quick-tag" data-loc="서초구 서초동">서초동</span>
+                <span class="quick-tag" data-loc="서초구 양재2동">양재2동</span>
+                <span class="quick-tag" data-loc="서초구 반포동">반포동</span>
+              </div>
+              <div class="field-error-msg" id="error-location"></div>
+            </div>
+
+            <!-- 판매 상태 -->
+            <div class="form-section">
+              <label class="form-label required">판매 상태</label>
+              <div class="status-chips-group">
+                <label class="status-chip is-active-sale">
+                  <input type="radio" name="write-status" value="판매중" checked />
+                  <span>🌱 판매중</span>
+                </label>
+                <label class="status-chip">
+                  <input type="radio" name="write-status" value="예약중" />
+                  <span>⏳ 예약중</span>
+                </label>
+                <label class="status-chip">
+                  <input type="radio" name="write-status" value="거래 완료" />
+                  <span>✅ 거래 완료</span>
+                </label>
+              </div>
+              <div class="field-error-msg" id="error-status"></div>
+            </div>
+          </div>
+
+          <!-- 6) 자세한 설명 -->
+          <div class="form-section">
+            <div class="desc-header-row">
+              <label for="write-description" class="form-label required">자세한 설명</label>
+              <span class="input-counter" id="desc-counter">0/500</span>
+            </div>
+            <textarea id="write-description" name="description" class="gamza-textarea" rows="5" maxlength="500" placeholder="신뢰할 수 있는 거래를 위해 구매 시기, 하자 유무, 거래 선호 장소 등을 자세히 적어주세요." required></textarea>
+            <div class="field-error-msg" id="error-description"></div>
+          </div>
+
+        </div>
+
+        <!-- 3. 푸터 액션 영역 -->
+        <footer class="gamza-modal-footer">
+          <div class="footer-btn-group">
+            <button type="button" class="btn-cancel" data-close-modal>취소</button>
+            <button type="submit" class="btn-submit" id="btn-submit-write">
+              <span class="btn-potato-icon">🥔</span>
+              <span class="btn-text">작성 완료</span>
+            </button>
+          </div>
+        </footer>
+      </form>
+    </div>
+
+    <!-- 감자 토스트 팝업 컨테이너 -->
+    <div id="gamza-write-toast" class="gamza-toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- 화면 3 자바스크립트 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../shared/supabase_client.js"></script>
+  <script src="./screen3_write.js"></script>
+
+  <!-- 데모/테스트용 이벤트 리스너 연동 스크립트 -->
+  <script>
+    // 전역 GamzaEvents 인터페이스 정의 (팀 프로젝트 표준 연동)
+    window.GamzaEvents = window.GamzaEvents || {
+      addProduct: function(product) {
+        console.log('[GamzaEvents.addProduct] 새 상품 등록됨:', product);
+        renderDemoProductCard(product);
+      }
+    };
+
+    // CustomEvent 수신 테스트
+    window.addEventListener('gamza:product-added', function(e) {
+      console.log('[gamza:product-added 이벤트 감지]', e.detail);
+      renderDemoProductCard(e.detail);
+    });
+
+    function renderDemoProductCard(product) {
+      const container = document.getElementById('demo-recent-product-container');
+      if (!container) return;
+
+      const priceText = product.price === 0 ? '무료나눔 🥔' : `${Number(product.price).toLocaleString('ko-KR')}원`;
+
+      container.innerHTML = `
+        <div class="demo-product-card">
+          <img src="${product.imageUrl}" alt="${product.title}" class="demo-product-img" />
+          <div class="demo-product-info">
+            <div class="demo-product-title">
+              ${escapeHtml(product.title)}
+              <span class="demo-product-status">${product.status}</span>
+            </div>
+            <div class="demo-product-meta">
+              <span>🏷️ ${escapeHtml(product.category)}</span>
+              <span>📍 ${escapeHtml(product.location)}</span>
+              <span>🕒 ${product.timeAgo}</span>
+            </div>
+            <div class="demo-product-price">${priceText}</div>
+            <p style="font-size: 12px; color: var(--text-sub); margin-top: 4px; line-height: 1.4;">
+              ${escapeHtml(product.description)}
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
