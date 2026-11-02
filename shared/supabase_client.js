@@ -433,6 +433,364 @@
     }
   }
 
+  // ==========================================================================
+  // [Chat APIs] 대화방 생성/조회 및 실시간 메시지 연동
+  // ==========================================================================
+
+  const LOCAL_CHAT_ROOMS_KEY = 'gamza_local_chat_rooms';
+  const LOCAL_CHAT_MESSAGES_KEY = 'gamza_local_chat_messages';
+
+  function getLocalRooms() {
+    try {
+      return JSON.parse(localStorage.getItem(LOCAL_CHAT_ROOMS_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function saveLocalRooms(rooms) {
+    try {
+      localStorage.setItem(LOCAL_CHAT_ROOMS_KEY, JSON.stringify(rooms));
+    } catch (e) {
+      console.warn('[GamzaSupabase] saveLocalRooms error:', e);
+    }
+  }
+
+  function getLocalMessages() {
+    try {
+      return JSON.parse(localStorage.getItem(LOCAL_CHAT_MESSAGES_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function saveLocalMessages(msgs) {
+    try {
+      localStorage.setItem(LOCAL_CHAT_MESSAGES_KEY, JSON.stringify(msgs));
+    } catch (e) {
+      console.warn('[GamzaSupabase] saveLocalMessages error:', e);
+    }
+  }
+
+  /**
+   * Get or create a chat room between buyer and seller for a specific product
+   */
+  async function getOrCreateChatRoom(productId, buyerId, sellerId) {
+    console.log('🥔 [GamzaSupabase] getOrCreateChatRoom:', { productId, buyerId, sellerId });
+
+    if (!productId || !buyerId || !sellerId) {
+      throw new Error('productId, buyerId, sellerId are required.');
+    }
+
+    if (client) {
+      try {
+        // 1. 기존 방 조회
+        const { data: existingRoom, error: fetchErr } = await client
+          .from('chat_rooms')
+          .select(`
+            id,
+            product_id,
+            buyer_id,
+            seller_id,
+            created_at,
+            products ( id, title, price, status, image_url, location ),
+            buyer:user_profiles!chat_rooms_buyer_id_fkey ( id, nickname, profile_img, potato_temp ),
+            seller:user_profiles!chat_rooms_seller_id_fkey ( id, nickname, profile_img, potato_temp )
+          `)
+          .eq('product_id', productId)
+          .eq('buyer_id', buyerId)
+          .maybeSingle();
+
+        if (existingRoom && !fetchErr) {
+          console.log('🥔 [GamzaSupabase] Found existing chat room in DB:', existingRoom.id);
+          return existingRoom;
+        }
+
+        // 2. 외래키 제약조건 만족을 위해 user_profiles 존재 여부 안전 보장
+        const dummyProfileImg = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';
+        try {
+          await client.from('user_profiles').upsert([
+            { id: buyerId, nickname: '구매자 감자', profile_img: dummyProfileImg, activity_location: '역삼1동', potato_temp: 36.5 },
+            { id: sellerId, nickname: '판매자 감자', profile_img: dummyProfileImg, activity_location: '역삼1동', potato_temp: 36.5 }
+          ], { onConflict: 'id', ignoreDuplicates: true });
+        } catch (e) {
+          console.warn('[GamzaSupabase] Upsert user profiles note:', e);
+        }
+
+        // 3. 없으면 새로 생성
+        const { data: newRoom, error: insertErr } = await client
+          .from('chat_rooms')
+          .insert({
+            product_id: productId,
+            buyer_id: buyerId,
+            seller_id: sellerId
+          })
+          .select(`
+            id,
+            product_id,
+            buyer_id,
+            seller_id,
+            created_at,
+            products ( id, title, price, status, image_url, location ),
+            buyer:user_profiles!chat_rooms_buyer_id_fkey ( id, nickname, profile_img, potato_temp ),
+            seller:user_profiles!chat_rooms_seller_id_fkey ( id, nickname, profile_img, potato_temp )
+          `)
+          .single();
+
+        if (newRoom && !insertErr) {
+          console.log('🥔 [GamzaSupabase] Created new chat room in DB:', newRoom.id);
+          return newRoom;
+        }
+
+        if (insertErr) {
+          console.warn('[GamzaSupabase] create room DB error, falling back to local room:', insertErr);
+        }
+      } catch (err) {
+        console.warn('[GamzaSupabase] getOrCreateChatRoom DB exception, fallback to local:', err);
+      }
+    }
+
+    // Fallback: Local Storage Room
+    const localRooms = getLocalRooms();
+    let localRoom = localRooms.find(r => String(r.product_id) === String(productId) && String(r.buyer_id) === String(buyerId));
+    if (!localRoom) {
+      localRoom = {
+        id: 'local-room-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+        product_id: productId,
+        buyer_id: buyerId,
+        seller_id: sellerId,
+        created_at: new Date().toISOString()
+      };
+      localRooms.unshift(localRoom);
+      saveLocalRooms(localRooms);
+    }
+    return localRoom;
+  }
+
+  /**
+   * Fetch all chat rooms for a given user (as buyer or seller)
+   */
+  async function fetchChatRooms(userId) {
+    console.log('🥔 [GamzaSupabase] fetchChatRooms for user:', userId);
+    if (!userId) return [];
+
+    let dbRooms = [];
+    if (client) {
+      try {
+        const { data, error } = await client
+          .from('chat_rooms')
+          .select(`
+            id,
+            product_id,
+            buyer_id,
+            seller_id,
+            created_at,
+            products ( id, title, price, status, image_url, location ),
+            buyer:user_profiles!chat_rooms_buyer_id_fkey ( id, nickname, profile_img, potato_temp ),
+            seller:user_profiles!chat_rooms_seller_id_fkey ( id, nickname, profile_img, potato_temp ),
+            chat_messages ( id, content, created_at, sender_id )
+          `)
+          .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
+          .order('created_at', { ascending: false });
+
+        if (!error && Array.isArray(data)) {
+          dbRooms = data.map(r => {
+            // Sort messages to get the last message
+            const msgs = Array.isArray(r.chat_messages) ? [...r.chat_messages] : [];
+            msgs.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+            const lastMsg = msgs[msgs.length - 1] || null;
+            return {
+              ...r,
+              lastMessage: lastMsg ? lastMsg.content : '대화를 시작해보세요!',
+              lastMessageTime: lastMsg ? formatTimeAgo(lastMsg.created_at) : formatTimeAgo(r.created_at)
+            };
+          });
+        } else if (error) {
+          console.warn('[GamzaSupabase] fetchChatRooms error:', error);
+        }
+      } catch (err) {
+        console.warn('[GamzaSupabase] fetchChatRooms exception:', err);
+      }
+    }
+
+    // Merge with local rooms
+    const localRooms = getLocalRooms().filter(r => String(r.buyer_id) === String(userId) || String(r.seller_id) === String(userId));
+    const mergedMap = new Map();
+    dbRooms.forEach(r => mergedMap.set(String(r.id), r));
+    localRooms.forEach(lr => {
+      if (!mergedMap.has(String(lr.id))) {
+        mergedMap.set(String(lr.id), lr);
+      }
+    });
+
+    return Array.from(mergedMap.values());
+  }
+
+  /**
+   * Fetch all messages for a chat room
+   */
+  async function fetchChatMessages(roomId) {
+    if (!roomId) return [];
+
+    let dbMessages = [];
+    if (client && !String(roomId).startsWith('local-room-')) {
+      try {
+        const { data, error } = await client
+          .from('chat_messages')
+          .select(`
+            id,
+            room_id,
+            sender_id,
+            content,
+            is_read,
+            created_at,
+            sender:user_profiles!chat_messages_sender_id_fkey ( id, nickname, profile_img )
+          `)
+          .eq('room_id', roomId)
+          .order('created_at', { ascending: true });
+
+        if (!error && Array.isArray(data)) {
+          dbMessages = data;
+        } else if (error) {
+          console.warn('[GamzaSupabase] fetchChatMessages DB error:', error);
+        }
+      } catch (err) {
+        console.warn('[GamzaSupabase] fetchChatMessages exception:', err);
+      }
+    }
+
+    // Local messages for this room
+    const localMsgs = getLocalMessages().filter(m => String(m.room_id) === String(roomId));
+    
+    // Combine and deduplicate by id
+    const map = new Map();
+    dbMessages.forEach(m => map.set(String(m.id), m));
+    localMsgs.forEach(m => {
+      if (!map.has(String(m.id))) {
+        map.set(String(m.id), m);
+      }
+    });
+
+    const all = Array.from(map.values());
+    all.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    return all;
+  }
+
+  /**
+   * Send a chat message
+   */
+  async function sendChatMessage(roomId, senderId, content, senderProfile = null) {
+    if (!roomId || !senderId || !content) {
+      throw new Error('roomId, senderId, and content are required.');
+    }
+
+    const newMsgObj = {
+      room_id: roomId,
+      sender_id: senderId,
+      content: content.trim(),
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+
+    if (client && !String(roomId).startsWith('local-room-')) {
+      try {
+        // Ensure sender exists in user_profiles
+        if (senderProfile) {
+          try {
+            await client.from('user_profiles').upsert({
+              id: senderId,
+              nickname: senderProfile.nickname || '익명 감자',
+              profile_img: senderProfile.profile_img || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+              activity_location: senderProfile.activity_location || '역삼1동',
+              potato_temp: senderProfile.potato_temp || 36.5
+            }, { onConflict: 'id', ignoreDuplicates: true });
+          } catch (e) {
+            console.warn('[GamzaSupabase] sender upsert note:', e);
+          }
+        }
+
+        const { data, error } = await client
+          .from('chat_messages')
+          .insert(newMsgObj)
+          .select(`
+            id,
+            room_id,
+            sender_id,
+            content,
+            is_read,
+            created_at,
+            sender:user_profiles!chat_messages_sender_id_fkey ( id, nickname, profile_img )
+          `)
+          .single();
+
+        if (data && !error) {
+          console.log('🥔 [GamzaSupabase] Message sent to DB:', data);
+          return data;
+        }
+
+        if (error) {
+          console.warn('[GamzaSupabase] sendChatMessage DB error, saving to local:', error);
+        }
+      } catch (err) {
+        console.warn('[GamzaSupabase] sendChatMessage exception, saving to local:', err);
+      }
+    }
+
+    // Local save fallback
+    const localMsgs = getLocalMessages();
+    const fallbackMsg = {
+      ...newMsgObj,
+      id: Date.now(),
+      sender: senderProfile ? {
+        id: senderId,
+        nickname: senderProfile.nickname || '나',
+        profile_img: senderProfile.profile_img
+      } : null
+    };
+    localMsgs.push(fallbackMsg);
+    saveLocalMessages(localMsgs);
+    return fallbackMsg;
+  }
+
+  /**
+   * Subscribe to new messages for a specific room via Supabase Realtime
+   */
+  function subscribeToRoomMessages(roomId, onNewMessage) {
+    if (!client || !roomId || String(roomId).startsWith('local-room-')) {
+      return { unsubscribe: () => {} };
+    }
+
+    try {
+      const channel = client
+        .channel(`room-messages-${roomId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'chat_messages',
+            filter: `room_id=eq.${roomId}`
+          },
+          (payload) => {
+            console.log('🥔 [GamzaSupabase Realtime] New message received:', payload.new);
+            if (typeof onNewMessage === 'function') {
+              onNewMessage(payload.new);
+            }
+          }
+        )
+        .subscribe();
+
+      return {
+        unsubscribe: () => {
+          client.removeChannel(channel);
+        }
+      };
+    } catch (err) {
+      console.warn('[GamzaSupabase] Realtime subscription error:', err);
+      return { unsubscribe: () => {} };
+    }
+  }
+
   // Export public API to window
   window.GamzaSupabase = {
     client,
@@ -443,7 +801,13 @@
     deleteProduct,
     updateProductStatus,
     updateLikesCount,
-    getOrCreateLocalUserProfile
+    getOrCreateLocalUserProfile,
+    // Chat APIs
+    getOrCreateChatRoom,
+    fetchChatRooms,
+    fetchChatMessages,
+    sendChatMessage,
+    subscribeToRoomMessages
   };
 
   console.log('🥔 [GamzaSupabase] Supabase Bridge Initialized with project:', SUPABASE_URL);

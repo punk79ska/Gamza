@@ -1,0 +1,775 @@
+/* ==========================================================================
+   감자 (Gamza) 마켓 - 실시간 1:1 감자 채팅 스타일시트
+   components/screen4_chat.css
+   포슬포슬 따뜻한 이웃 간의 대화창 UI & 채팅방 목록 뷰
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 헤더 [채팅] 버튼 & 플로팅 액션 버튼 (FAB)
+   -------------------------------------------------------------------------- */
+.btn-chat {
+  height: 40px;
+  padding: 0 16px;
+  background-color: var(--primary-soft);
+  border: 1.5px solid var(--primary-light);
+  border-radius: var(--radius-full);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.btn-chat:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-chat svg {
+  width: 17px;
+  height: 17px;
+}
+
+.chat-unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #e53e3e;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  border: 2px solid #ffffff;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(229, 62, 62, 0.4);
+}
+
+.chat-unread-badge.hidden {
+  display: none !important;
+}
+
+/* Floating Action Button for Chat */
+.gamza-fab-chat {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 800;
+  height: 52px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, var(--accent) 0%, #ffc400 100%);
+  color: var(--accent-contrast);
+  border: 1.5px solid var(--accent-border);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.35);
+  transition: var(--transition);
+}
+
+.gamza-fab-chat:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(217, 119, 6, 0.45);
+}
+
+.gamza-fab-chat:active {
+  transform: translateY(0);
+}
+
+.gamza-fab-chat .fab-potato {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+/* --------------------------------------------------------------------------
+   2. 채팅 모달 다이얼로그 오버레이 (Single Modal: List or Room)
+   -------------------------------------------------------------------------- */
+.gamza-chat-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.gamza-chat-modal-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.gamza-chat-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(36, 26, 16, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.gamza-chat-dialog {
+  position: relative;
+  z-index: 1;
+  width: 95%;
+  max-width: 480px;
+  height: 680px;
+  max-height: 92vh;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gamza-chat-modal-overlay.is-active .gamza-chat-dialog {
+  transform: translateY(0) scale(1);
+}
+
+/* --------------------------------------------------------------------------
+   3. 모달 공통 헤더
+   -------------------------------------------------------------------------- */
+.chat-modal-header {
+  height: 60px;
+  padding: 0 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.btn-chat-nav-back {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-main);
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.btn-chat-nav-back:hover {
+  background-color: var(--bg-muted);
+}
+
+.chat-header-title-box {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chat-header-main-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-header-sub-meta {
+  font-size: 12px;
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-header-temp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background-color: var(--accent-light);
+  color: var(--accent-text);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+}
+
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-chat-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.btn-chat-close:hover {
+  background-color: var(--bg-muted);
+  color: var(--text-main);
+}
+
+/* --------------------------------------------------------------------------
+   4. 뷰 1: 채팅방 목록 뷰 (#view-chat-rooms)
+   -------------------------------------------------------------------------- */
+.chat-rooms-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-card);
+}
+
+.chat-rooms-container.hidden,
+.chat-room-detail-container.hidden {
+  display: none !important;
+}
+
+.chat-rooms-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chat-room-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  position: relative;
+  gap: 14px;
+}
+
+.chat-room-item:hover {
+  background-color: var(--primary-soft);
+}
+
+.chat-room-avatar-wrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.chat-room-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  background-color: #f0ebe4;
+}
+
+.chat-room-avatar-potato {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 13px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  line-height: 1;
+}
+
+.chat-room-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-room-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.chat-room-partner-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.chat-room-meta-loc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: 6px;
+  font-weight: normal;
+}
+
+.chat-room-time {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.chat-room-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-room-last-msg {
+  font-size: 13px;
+  color: var(--text-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.chat-room-prod-thumb-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+  background-color: var(--bg-muted);
+}
+
+.chat-room-prod-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Empty State in Rooms */
+.chat-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.chat-empty-potato-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  animation: floatPotato 3s ease-in-out infinite;
+}
+
+@keyframes floatPotato {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.chat-empty-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.chat-empty-desc {
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+/* --------------------------------------------------------------------------
+   5. 뷰 2: 1:1 대화방 상세 뷰 (#view-chat-detail)
+   -------------------------------------------------------------------------- */
+.chat-room-detail-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-page);
+  min-height: 0;
+}
+
+/* Upper Product Summary Bar */
+.chat-product-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.chat-product-bar:hover {
+  background-color: var(--primary-soft);
+}
+
+.chat-prod-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.chat-prod-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-prod-status-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.chat-prod-status-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+}
+
+.chat-prod-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-prod-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary-hover);
+}
+
+.chat-btn-view-product {
+  font-size: 12px;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  background: #ffffff;
+  white-space: nowrap;
+}
+
+/* Messages Scrollable Container */
+.chat-messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Date Divider */
+.chat-date-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 0;
+}
+
+.chat-date-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  background-color: rgba(220, 210, 200, 0.4);
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* Safe Trading Notice */
+.chat-safe-notice {
+  background-color: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--accent-text);
+  line-height: 1.45;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.chat-safe-notice-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* Message Rows */
+.chat-message-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 82%;
+}
+
+/* Other User Message (Left) */
+.chat-message-row.is-other {
+  align-self: flex-start;
+}
+
+.chat-msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border-color);
+  margin-bottom: 2px;
+}
+
+.chat-msg-body-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.chat-msg-sender-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.chat-bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.chat-message-row.is-other .chat-bubble {
+  background-color: #ffffff;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-msg-time {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+/* My Message (Right) */
+.chat-message-row.is-me {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-message-row.is-me .chat-bubble {
+  background: linear-gradient(135deg, var(--accent) 0%, #ffd000 100%);
+  color: var(--accent-contrast);
+  font-weight: 500;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message-row.is-me .chat-msg-time {
+  text-align: right;
+}
+
+.chat-msg-unread-dot {
+  font-size: 10px;
+  color: var(--accent-hover);
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+/* Typing Indicator Bubble */
+.chat-typing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+}
+
+.chat-typing-bubble {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--text-muted);
+  border-radius: 50%;
+  animation: typingBounce 1.2s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   6. 빠른 추천 답장 칩 & 하단 입력 폼
+   -------------------------------------------------------------------------- */
+.chat-quick-replies-bar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 14px;
+  overflow-x: auto;
+  white-space: nowrap;
+  background-color: #ffffff;
+  border-top: 1px solid var(--border-subtle);
+  scrollbar-width: none;
+}
+
+.chat-quick-replies-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.quick-reply-chip {
+  background-color: var(--primary-soft);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.quick-reply-chip:hover {
+  background-color: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+  transform: translateY(-1px);
+}
+
+.chat-input-wrapper {
+  padding: 10px 14px;
+  background-color: #ffffff;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.chat-input-box {
+  flex: 1;
+  height: 42px;
+  background-color: var(--bg-page);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 0 16px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-main);
+  outline: none;
+  transition: var(--transition);
+}
+
+.chat-input-box:focus {
+  border-color: var(--primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(141, 91, 56, 0.12);
+}
+
+.btn-chat-send {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, #ffd000 100%);
+  border: 1px solid var(--accent-border);
+  color: var(--accent-contrast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px var(--accent-shadow);
+}
+
+.btn-chat-send:hover {
+  transform: scale(1.05);
+  background: var(--accent-hover);
+}
+
+.btn-chat-send:active {
+  transform: scale(0.96);
+}
+
+.btn-chat-send svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  transform: translate(1px, -1px);
+}
+
+/* --------------------------------------------------------------------------
+   7. 모바일 반응형 처리
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .gamza-chat-dialog {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+
+  .gamza-fab-chat {
+    bottom: 20px;
+    right: 16px;
+    height: 46px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+}

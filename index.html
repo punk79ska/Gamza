@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="./components/screen1_list.css">
   <link rel="stylesheet" href="./components/screen2_detail.css">
   <link rel="stylesheet" href="./components/screen3_write.css">
+  <link rel="stylesheet" href="./components/screen4_chat.css">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -83,8 +84,17 @@
               로그아웃
             </button>
           </div>
+
+          <!-- 3) 채팅 목록 버튼 -->
+          <button type="button" id="btn-header-chat" class="btn-chat" aria-label="감자 채팅 목록 열기" title="감자톡">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>채팅</span>
+            <span id="chat-unread-badge" class="chat-unread-badge hidden">0</span>
+          </button>
           
-          <!-- 3) 글쓰기 버튼 -->
+          <!-- 4) 글쓰기 버튼 -->
           <button type="button" id="btn-write" class="btn-write" aria-label="내 물건 팔기 글쓰기">
             <svg viewBox="0 0 24 24">
               <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -613,6 +623,106 @@
     </div>
   </div>
 
+  <!-- =========================================================================
+       [화면 4] 실시간 1:1 감자 채팅 & 대화방 목록 모달 (#gamza-chat-modal)
+       ========================================================================= -->
+  <div id="gamza-chat-modal" class="gamza-chat-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="chat-header-title">
+    <div class="gamza-chat-backdrop" id="gamza-chat-backdrop"></div>
+    <div class="gamza-chat-dialog">
+      <!-- 상단 헤더 -->
+      <header class="chat-modal-header">
+        <div class="chat-header-left">
+          <button type="button" id="btn-chat-nav-back" class="btn-chat-nav-back" aria-label="대화방 목록으로 돌아가기" title="뒤로가기" style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div class="chat-header-title-box">
+            <div class="chat-header-main-title">
+              <span id="chat-header-title">🥔 감자톡</span>
+              <span id="chat-header-temp" class="chat-header-temp-pill" style="display: none;">🥔 36.5℃</span>
+            </div>
+            <span id="chat-header-sub" class="chat-header-sub-meta">따뜻한 이웃과의 대화 목록</span>
+          </div>
+        </div>
+        <div class="chat-header-actions">
+          <button type="button" id="btn-close-chat-modal" class="btn-chat-close" aria-label="채팅 닫기" title="닫기 (ESC)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- 뷰 1: 채팅방 목록 뷰 -->
+      <div id="view-chat-rooms" class="chat-rooms-container">
+        <ul id="chat-rooms-list" class="chat-rooms-list">
+          <!-- 동적 렌더링 -->
+        </ul>
+        <div id="chat-rooms-empty" class="chat-empty-state" style="display: none;">
+          <div class="chat-empty-potato-icon">🥔</div>
+          <h3 class="chat-empty-title">진행 중인 대화가 없어요</h3>
+          <p class="chat-empty-desc">마음에 드는 물품의 [채팅 시작하기]를 눌러 이웃과 따뜻한 첫 대화를 시작해보세요!</p>
+        </div>
+      </div>
+
+      <!-- 뷰 2: 1:1 대화방 상세 뷰 -->
+      <div id="view-chat-detail" class="chat-room-detail-container hidden">
+        <!-- 상단 상품 정보 바 -->
+        <div id="chat-product-bar" class="chat-product-bar" title="클릭 시 상품 상세 보기">
+          <img id="chat-prod-thumb" class="chat-prod-thumb" src="" alt="상품 썸네일" />
+          <div class="chat-prod-info">
+            <div class="chat-prod-status-row">
+              <span id="chat-prod-status" class="chat-prod-status-tag status-sale">판매중</span>
+              <span id="chat-prod-title" class="chat-prod-title">상품 제목</span>
+            </div>
+            <div id="chat-prod-price" class="chat-prod-price">0원</div>
+          </div>
+          <button type="button" class="chat-btn-view-product">상품보기</button>
+        </div>
+
+        <!-- 메시지 리스트 스크롤 영역 -->
+        <div id="chat-messages-container" class="chat-messages-container">
+          <!-- 동적 메시지 렌더링 -->
+        </div>
+
+        <!-- 상대방 입력 중 인디케이터 -->
+        <div id="chat-typing-indicator" class="chat-typing-row" style="display: none; padding: 0 16px 8px;">
+          <div class="chat-typing-bubble">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <!-- 빠른 답장 추천 칩 바 -->
+        <div id="chat-quick-replies" class="chat-quick-replies-bar">
+          <button type="button" class="quick-reply-chip" data-text="안녕하세요! 구매 가능한가요? 🥔">구매 가능한가요? 🥔</button>
+          <button type="button" class="quick-reply-chip" data-text="직거래 가능한 시간/장소 알려주세요!">언제 직거래 가능한가요? 📍</button>
+          <button type="button" class="quick-reply-chip" data-text="조금 네고 가능한가요? 😊">네고 가능한가요? 😊</button>
+          <button type="button" class="quick-reply-chip" data-text="포슬포슬 감자마켓에서 보고 연락드려요!">포슬포슬 감자마켓 보고 연락드려요!</button>
+        </div>
+
+        <!-- 하단 메시지 입력 폼 -->
+        <div class="chat-input-wrapper">
+          <input type="text" id="chat-input-field" class="chat-input-box" placeholder="따뜻한 메시지를 입력해보세요... (Enter 전송)" autocomplete="off" />
+          <button type="button" id="btn-chat-send" class="btn-chat-send" aria-label="메시지 전송" title="전송">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 플로팅 감자톡 바로가기 버튼 (FAB) -->
+  <button type="button" id="gamza-fab-chat" class="gamza-fab-chat" aria-label="감자톡 대화 목록" title="감자톡 열기">
+    <span class="fab-potato">🥔</span>
+    <span>감자톡</span>
+  </button>
+
   <!-- 통합 글로벌 감자 토스트 컨테이너 -->
   <div id="gamza-toast-container" class="gamza-toast-container" aria-live="polite"></div>
 
@@ -622,7 +732,8 @@
        2) 컴포넌트 1 (상품 목록 로직)
        3) 컴포넌트 2 (상세 팝업 로직)
        4) 컴포넌트 3 (글쓰기 모달 로직)
-       5) 메인 오케스트레이터 (app.js)
+       5) 컴포넌트 4 (실시간 감자 채팅 로직)
+       6) 메인 오케스트레이터 (app.js)
        ========================================================================= -->
   <!-- Supabase JS Client v2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -635,6 +746,7 @@
   <script src="./components/screen1_list.js"></script>
   <script src="./components/screen2_detail.js"></script>
   <script src="./components/screen3_write.js"></script>
+  <script src="./components/screen4_chat.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

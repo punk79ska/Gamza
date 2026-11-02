@@ -648,19 +648,36 @@
       });
     }
 
-    // 5. Chat CTA button click
+    // 5. Chat CTA button click (채팅 기능 활성화)
     if (elements.btnChatCta) {
       elements.btnChatCta.addEventListener('click', (e) => {
         e.preventDefault();
-        const sellerName = currentProduct && currentProduct.seller ? currentProduct.seller.name : "판매자";
-        showToast(`💬 ${sellerName}님과의 채팅방이 준비 중입니다!`, "🥔");
+        if (!currentProduct) return;
+
+        // 본인 물품인지 확인
+        const currentUser = window.GamzaAuth && typeof window.GamzaAuth.getCurrentUserProfile === 'function'
+          ? window.GamzaAuth.getCurrentUserProfile()
+          : null;
         
-        window.dispatchEvent(new CustomEvent('gamza:chat-clicked', {
-          detail: {
-            product: currentProduct,
-            seller: currentProduct ? currentProduct.seller : null
-          }
-        }));
+        if (currentUser && currentProduct.seller && String(currentUser.id) === String(currentProduct.seller.id)) {
+          showToast('🥔 내가 등록한 상품에는 채팅을 걸 수 없어요!', '🥔');
+          return;
+        }
+
+        console.log('🥔 [GamzaScreen2] Chat CTA clicked for product:', currentProduct.id);
+
+        if (window.GamzaEvents && typeof window.GamzaEvents.openChat === 'function') {
+          window.GamzaEvents.openChat(currentProduct);
+        } else if (window.GamzaChat && typeof window.GamzaChat.openChatWithProduct === 'function') {
+          window.GamzaChat.openChatWithProduct(currentProduct);
+        } else {
+          window.dispatchEvent(new CustomEvent('gamza:chat-clicked', {
+            detail: {
+              product: currentProduct,
+              seller: currentProduct ? currentProduct.seller : null
+            }
+          }));
+        }
       });
     }
 

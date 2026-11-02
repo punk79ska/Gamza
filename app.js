@@ -232,6 +232,37 @@
       if (window.GamzaScreen1 && typeof window.GamzaScreen1.showToast === 'function') {
         window.GamzaScreen1.showToast(toastMsg);
       }
+    },
+
+    /**
+     * [화면 2 -> 화면 4] 상품에 대한 1:1 채팅창 열기
+     */
+    openChat: function (productOrId) {
+      let targetProduct = productOrId;
+      if (typeof productOrId === 'number' || typeof productOrId === 'string') {
+        targetProduct = products.find(p => String(p.id) === String(productOrId));
+      }
+
+      if (!targetProduct) return;
+      console.log('🥔 [GamzaEvents.openChat] Opening chat for product:', targetProduct.id);
+
+      if (window.GamzaChat && typeof window.GamzaChat.openChatWithProduct === 'function') {
+        window.GamzaChat.openChatWithProduct(targetProduct);
+      } else {
+        console.warn('[GamzaEvents] GamzaChat not loaded yet.');
+      }
+    },
+
+    /**
+     * [헤더 / FAB -> 화면 4] 내 채팅 목록 열기
+     */
+    openChatList: function () {
+      console.log('🥔 [GamzaEvents.openChatList] Opening chat list modal');
+      if (window.GamzaChat && typeof window.GamzaChat.openChatListModal === 'function') {
+        window.GamzaChat.openChatListModal();
+      } else {
+        console.warn('[GamzaEvents] GamzaChat not loaded yet.');
+      }
     }
   };
 
@@ -285,10 +316,41 @@
     }
   });
 
+  // 채팅 시작 이벤트 수신 (화면 2 상세 모달에서 발행)
+  window.addEventListener('gamza:chat-clicked', function (e) {
+    if (e.detail && e.detail.product) {
+      window.GamzaEvents.openChat(e.detail.product);
+    }
+  });
+
+  window.addEventListener('gamza:open-chat', function (e) {
+    if (e.detail && e.detail.product) {
+      window.GamzaEvents.openChat(e.detail.product);
+    }
+  });
+
   /**
    * 4. 상단 글로벌 헤더 액션 바인딩
    */
   function bindGlobalHeaderActions() {
+    // [채팅] 버튼
+    const chatBtn = document.getElementById('btn-header-chat');
+    if (chatBtn) {
+      chatBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.GamzaEvents.openChatList();
+      });
+    }
+
+    // 플로팅 채팅 버튼 (FAB)
+    const fabChatBtn = document.getElementById('gamza-fab-chat');
+    if (fabChatBtn) {
+      fabChatBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.GamzaEvents.openChatList();
+      });
+    }
+
     // [글쓰기] 버튼
     const writeBtn = document.getElementById('btn-write');
     if (writeBtn) {
@@ -379,10 +441,15 @@
       window.GamzaScreen3.initScreen3();
     }
 
-    // 4) 글로벌 헤더 인터랙션 연결
+    // 4) 화면 4 (실시간 감자 채팅) 초기화
+    if (window.GamzaChat && typeof window.GamzaChat.init === 'function') {
+      window.GamzaChat.init();
+    }
+
+    // 5) 글로벌 헤더 인터랙션 연결
     bindGlobalHeaderActions();
 
-    // 5) Supabase 클라우드 실시간 데이터 비동기 동기화
+    // 6) Supabase 클라우드 실시간 데이터 비동기 동기화
     await loadProductsFromSupabase();
 
     console.log('🥔 [Gamza Market] All components connected to Supabase and ready!');
