@@ -107,6 +107,24 @@ const INITIAL_PRODUCTS = [
       potatoTemp: "48.9℃"
     },
     likes: 5
+  },
+  {
+    id: 7,
+    title: "폭신폭신 감자모양 댕댕이 노즈워크 장난감 & 마약방석 세트",
+    category: "반려동물 용품",
+    price: 18000,
+    location: "강남구 역삼1동",
+    timeAgo: "방금 전",
+    status: "판매중",
+    imageUrl: "https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?auto=format&fit=crop&w=1000&q=80",
+    description: "새상품 미개봉입니다! 감자 모양의 귀여운 노즈워크 장난감과 극세사 푹신 방석 세트예요. 우리 집 댕댕이 주려고 샀는데 같은 게 두 개 생겨서 저렴하게 나눔/판매합니다. 역삼역 직거래 가능합니다 🐾",
+    seller: {
+      name: "댕댕이포슬이",
+      profileImg: "https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?auto=format&fit=crop&w=200&q=80",
+      location: "역삼1동",
+      potatoTemp: "39.0℃"
+    },
+    likes: 12
   }
 ];
 
@@ -117,6 +135,7 @@ const CATEGORIES = [
   "의류",
   "생활가전",
   "도서/티켓",
+  "반려동물 용품",
   "기타"
 ];
 
